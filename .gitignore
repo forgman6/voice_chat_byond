@@ -1,0 +1,27 @@
+# BYOND-specific
+*.rsc
+*.dmb
+*.int
+*.lk
+*.zip
+*.backup
+*.log
+*.pid
+
+
+#visual studio
+*.tlog
+
+#websocket c++ stuff to many files
+websocket
+
+# Node.js-specific
+node_modules/
+npm-debug.log
+package-lock.json
+
+# General
+.DS_Store
+*.swp
+*.bak
+*.tmp
