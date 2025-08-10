@@ -5,7 +5,7 @@ world/New()
     var/sneedport = 1337
     OpenPort(sneedport)
     world.log << call_ext(get_lib(), "byond:Test")()
-    spawn() start_process()
+    // spawn() start_process()
     spawn() shell("node ./webrtc/server/main.js --byond-port=[sneedport]")
 
 proc/start_process()

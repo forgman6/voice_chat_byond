@@ -3,6 +3,7 @@
 var/global/datum/vc/SSVOICE = new()
     
     
+// shit you want the byond end to do after connection to node established
 datum/vc/proc/handshaked()
     add_rooms(list("a","b"), list("b"))
 
@@ -16,7 +17,8 @@ datum/vc
     var/list/userCode_current_room_map = alist()
 
 datum/vc/proc/link_userCode_client(userCode, client)
-    if(!client|| !userCode || !istype(client, /client))
+//    if(!client|| !userCode || !istype(client, /client)) 
+    if(!client|| !userCode)
         CRASH("go fuck yourself retard userCode:[userCode], client:[client]")
     var/client_ref = ref(client)
     userCode_client_map[userCode] = client_ref
@@ -84,7 +86,7 @@ datum/vc/proc/move_client_to_room(room_name="NONE", client/C)
     var/userCode =  client_userCode_map[ref(C)]
     if(!userCode || !(userCode in vc_clients))
         return
-    var/params = alist("cmd" = "changeRoom", "userCode" = userCode, "room_name" = room_name)
+    var/params = alist(cmd = "changeRoom", userCode = userCode, room_name = room_name)
     var/current_room = userCode_current_room_map[userCode]
     rooms[current_room] -= userCode
     rooms[room_name] += userCode
@@ -124,7 +126,6 @@ datum/vc/proc/send_client_locs()
     params["rooms"] = output_rooms
     send_json(params)
 
-//debug verbs
 datum/vc/proc/toggle_active(userCode, is_active)
     if(!userCode || isnull(is_active))
         // CRASH("null params")
@@ -147,15 +148,3 @@ datum/vc/proc/mute_mic(mob_ref, deafen=FALSE)
         return
     var/params = alist(cmd = deafen ? "deafen" : "mute_mic", userCode = userCode)
     send_json(params)
-
-mob/verb/move_client_to_room(room in SSVOICE.rooms)
-    if(!room)
-        // CRASH("null params")
-        return
-    SSVOICE.move_client_to_room(room, client)
-
-mob/verb/mute_self()
-    SSVOICE.mute_mic(ref(client))
-
-mob/verb/deafen()
-    SSVOICE.mute_mic(ref(client), deafen=TRUE)

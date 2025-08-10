@@ -11,14 +11,15 @@
 
 // BEGIN_PREFERENCES
 #define DEBUG
+// uncomment to show packets sent too and from node in world.log
+#define LOG_TRAFFIC
 // END_PREFERENCES
 
 // BEGIN_INCLUDE
-#include "code\rooms.dm"
 #include "code\routes.dm"
 #include "code\tests.dm"
-#include "code\voice_chat.dm"
 #include "code\voice_chat_server.dm"
+#include "code\voice_chat_verbs.dm"
 #include "code\voice_subsubsystem.dm"
 #include "code\core\auxtools.dm"
 #include "code\core\world.dm"
