@@ -12,8 +12,8 @@
 #visual studio
 *.tlog
 
-#websocket c++ stuff to many files
-websocket
+#python
+__*__
 
 # Node.js-specific
 node_modules/
