@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Voice Chat</title>
@@ -9,50 +8,44 @@
     <link rel="prefetch" as="image" href="stopclown.png">
     <link rel="prefetch" as="image" href="fastclown.gif">
 </head>
-
 <body>
-
+    <!-- Main Status and Controls -->
     <div class="main">
         <div id="status" class="tooltip" data-tip="status update<br>gives info about the client and server">
-            Connecting...</div>
-        <button id="mic" onclick="get_mic()" class="tooltip"
-            data-tip="click to try to grant mic permissions again. On firefox you will need reset permissions blocking by clicking on the microphone to the left of the search bar">try
-            microphone again</button>
+            Connecting...
+        </div>
+        <button id="mic" class="tooltip" data-tip="click to try to grant mic permissions again. On firefox you will need reset permissions blocking by clicking on the microphone to the left of the search bar">
+            try microphone again
+        </button>
         <img class="tooltip" data-tip="voice room connection status" id="room_status" src="stopclown.png">
         <img class="tooltip" data-tip="voice activity indicator" id="voice_activity_status" src="megaphone.png">
-        <input class="tooltip" data-tip="master volume slider" type="range" min="1" max="100" value="50"
-            id="volume_slider">
+        <input class="tooltip" data-tip="master volume slider" type="range" min="1" max="100" value="50" id="volume_slider">
     </div>
 
+    <!-- Action Buttons -->
     <div id="buttons" class="buttons">
-        <button id="mute_toggle" onclick="toggle_mute_self()" class="tooltip"
-            data-tip="toggle mute, colored = muted">mute</button>
-        <button id="deafen_toggle" onclick="toggle_deafen_self()" class="tooltip"
-            data-tip="toggle deafen, colored = deafened">deafen</button>
-        <button id="settings_button" onclick="toggle_settings()" class="tooltip"
-            data-tip="open/close settings menu">open settings</button>
+        <button id="mute_toggle" class="tooltip" data-tip="toggle mute, colored = muted">mute</button>
+        <button id="deafen_toggle" class="tooltip" data-tip="toggle deafen, colored = deafened">deafen</button>
+        <button id="settings_button" class="tooltip" data-tip="open/close settings menu">open settings</button>
     </div>
 
+    <!-- Settings Menu -->
     <div id="settings" class="buttons">
-        <input class="tooltip slider" data-tip="gain slider: adjust microphone gain" id="input_slider" type="range"
-            min=1 value=50 max=100>
-        <input class="tooltip slider" data-tip="sensitivity slider: adjust voice activity sensitivity"
-            id="sensitivity_slider" type="range" min=0.001 value=0.04 max=0.2 step="0.001">
-        <select class="tooltip" data-tip="input selector: choose from available microphone devices"
-            id="audioInput"></select>
-        <select id="audioOutput" class="tooltip"
-            data-tip="output selector: choose from available speaker devices"></select>
+        <input class="tooltip slider" data-tip="gain slider: adjust microphone gain" id="input_slider" type="range" min="1" value="50" max="100">
+        <input class="tooltip slider" data-tip="sensitivity slider: adjust voice activity sensitivity" id="sensitivity_slider" type="range" min="0.001" value="0.04" max="0.2" step="0.001">
+        <select class="tooltip" data-tip="input selector: choose from available microphone devices" id="audioInput"></select>
+        <select id="audioOutput" class="tooltip" data-tip="output selector: choose from available speaker devices"></select>
         <div class="mic_test_container">
-            <button class="tooltip" data-tip="mic test: click to test your mic" onclick="toggle_mic_test()">test
-                mic</button>
+            <button class="tooltip" data-tip="mic test: click to test your mic">test mic</button>
             <div id="mic_test_visual_indicator"></div>
         </div>
     </div>
 
+    <!-- Tooltip Display -->
     <div id="tooltip_box" class="tooltip" data-tip="mouse over something for a tooltip:">
         mouse over something for a tooltip:
     </div>
+
     <script src="voicechat.js"></script>
 </body>
-
 </html>

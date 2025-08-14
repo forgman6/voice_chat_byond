@@ -162,14 +162,21 @@ body {
 #room_status.active {
     background-image: none;
 }
-
-#mic_test_visual_indicator {
-    width: 0%;
-    margin: 2px;
-    transition: width 0.05s;
-}
-
 .mic_test_container {
     display: flex;
     flex-direction: row;
+    align-items: center;
+}
+
+.mic_test_container button {
+    flex: 0 0 auto;
+}
+
+#mic_test_visual_indicator {
+    flex: 0 1 auto;
+    height: 30px;
+    width: 0%;
+    margin: 2px;
+    transition: width 0.05s;
+    background-color: grey; /* Default background color; overridden by JS as needed */
 }
