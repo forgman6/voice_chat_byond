@@ -1,6 +1,6 @@
 const { sendJSON } = require('./byondCommunication');
 const { sessionIdToUserCode, userCodeToSocketId, userCodetoRoomName, rooms, prox_rooms } = require('./state');
-const { moveUserToRoom } = require('./roomManagement');
+const { moveUserToRoom, handleLocationPacket } = require('./roomManagement');
 function handleRequest(data, byondPort, io, shutdown_function) {
     try {
         const { cmd } = data;
@@ -86,7 +86,8 @@ function handleRequest(data, byondPort, io, shutdown_function) {
                     return;
                 }
                 io.to(socketId).emit("mute_mic");
-            }
+            },
+            loc: (data) => handleLocationPacket(data, io),
         };
 
         const handler = commandHandlers[cmd];

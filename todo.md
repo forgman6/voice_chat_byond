@@ -1,5 +1,8 @@
 - [x] clean up voicechat.js
 - [x] port tools
-- [ ] port index_points
-- [ ] 
-- [ ] 
+- [x] byond remove rooms
+- [x] node remove rooms
+- [ ] get mute deafen working again, 
+- [ ] switch track to null if not sending
+- [ ] clean up code for when a browser gets closed
+- [ ] optimize the neighbor function.

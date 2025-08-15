@@ -6,7 +6,7 @@ const { sendJSON } = require('./byondCommunication');
 
 // Parse command-line arguments
 const argv = minimist(process.argv.slice(2));
-const byondPort = argv['byond-port'];
+const byondPort = argv['byond-port'] ? argv['byond-port'] : 1337 ;
 
 // Write PID to file
 

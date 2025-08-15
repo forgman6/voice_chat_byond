@@ -42,17 +42,6 @@ mob/verb/make_dummy_client()
     C.mob = dummy_mob
     dummy_mob.dummy_client = C
     SSVOICE.link_userCode_client(id, C)
-
-mob/verb/move_client_to_room(room in SSVOICE.rooms)
-    if(!room)
-        // CRASH("null params")
-        return
-    var/list/choices = list()
-    for(var/mob/M in world)
-        choices += M.tag
-    var/selected_tag = input(src, "choose a mob") in choices
-    var/mob/target_mob = locate(selected_tag)
-    SSVOICE.move_client_to_room(room, (target_mob.dummy_client ? target_mob.dummy_client : client))
     
 mob/verb/mute_self()
     SSVOICE.mute_mic(ref(client))

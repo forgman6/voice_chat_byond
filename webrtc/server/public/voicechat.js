@@ -6,6 +6,7 @@ const ICE_SERVERS = [
 const DEFAULT_VOLUME_THRESHOLD = 0.01;
 const VAD_DEBOUNCE_TIME = 200; // ms
 const GAIN_SCALE_FACTOR = 50; // Slider 0-100 maps to gain 0-2
+const MAX_DIST_FOR_VOLUME = 10; // Approximate max Euclidean distance ~9.9
 
 // Global State
 let socket;
@@ -13,6 +14,7 @@ let localStream = null;
 let peerConnections = new Map();
 let audioElements = new Map();
 let audioSenders = new Map();
+let distances = new Map();
 let gainNode = null;
 let vadAudioContext = null;
 let vadAnalyser = null;
@@ -32,7 +34,6 @@ let sinkId = null; // Output device ID
 // Extract sessionId from URL
 const urlParams = new URLSearchParams(window.location.search);
 const sessionId = urlParams.get('sessionId');
-console.log('Session ID:', sessionId);
 
 // Utility Functions
 function toggleButton(buttonId, isActive) {
@@ -157,10 +158,12 @@ function updateSensitivity() {
     }
 }
 
-function updateMasterVolume() {
-    const volume = document.getElementById('volume_slider').value / 100;
-    audioElements.forEach(audio => {
-        audio.volume = volume;
+function updateVolumes() {
+    const masterVolume = document.getElementById('volume_slider').value / 100;
+    audioElements.forEach((audio, userCode) => {
+        const dist = distances.get(userCode) || 0;
+        const baseVolume = Math.max(0, 1 - dist / MAX_DIST_FOR_VOLUME);
+        audio.volume = masterVolume * baseVolume;
     });
 }
 
@@ -338,6 +341,21 @@ function createPeerConnection(userCode, sendOffer) {
     return pc;
 }
 
+function removePeer(userCode) {
+    const pc = peerConnections.get(userCode);
+    if (pc) {
+        pc.close();
+        peerConnections.delete(userCode);
+    }
+    const audio = audioElements.get(userCode);
+    if (audio) {
+        audio.remove();
+        audioElements.delete(userCode);
+    }
+    audioSenders.delete(userCode);
+    distances.delete(userCode);
+}
+
 // Socket Event Handlers
 function setupSocketHandlers() {
     socket.on('update', (update) => {
@@ -346,19 +364,31 @@ function setupSocketHandlers() {
         }
     });
 
-    socket.on('room-users', (data) => {
-        const { users } = data;
-        console.log('Room users:', users);
-        for (let userCode of users) {
-            createPeerConnection(userCode, true);
-        }
-        toggleRoomStatus(true);
-    });
+    socket.on('loc', (data) => {
+        console.log(data)
+        if (data.none === 1) {
+            Array.from(peerConnections.keys()).forEach(removePeer);
+            toggleRoomStatus(false);
+        } else {
+            const peers = data['peers']
+            const myUserCode = data['own']
+            const newUserCodes = new Set(Object.keys(peers));
+            const currentUserCodes = new Set(peerConnections.keys());
 
-    socket.on('user-joined', (data) => {
-        const { userCode } = data;
-        console.log(`User joined: ${userCode}`);
-        createPeerConnection(userCode, false);
+            const added = [...newUserCodes].filter(code => !currentUserCodes.has(code));
+            const removed = [...currentUserCodes].filter(code => !newUserCodes.has(code));
+
+            removed.forEach(removePeer);
+
+            added.forEach(code => {
+                const sendOffer = myUserCode < code;
+                createPeerConnection(code, sendOffer);
+            });
+
+            distances = new Map(Object.entries(data));
+            updateVolumes();
+            toggleRoomStatus(peerConnections.size > 0);
+        }
     });
 
     socket.on('offer', (data) => {
@@ -392,22 +422,6 @@ function setupSocketHandlers() {
         }
     });
 
-    socket.on('user-left', (data) => {
-        const { userCode } = data;
-        console.log(`User left: ${userCode}`);
-        const pc = peerConnections.get(userCode);
-        if (pc) {
-            pc.close();
-            peerConnections.delete(userCode);
-        }
-        const audio = audioElements.get(userCode);
-        if (audio) {
-            audio.remove();
-            audioElements.delete(userCode);
-        }
-        audioSenders.delete(userCode);
-    });
-
     socket.on('server-shutdown', () => {
         console.log('Server is shutting down. Cleaning up...');
         cleanupConnections();
@@ -436,6 +450,7 @@ function cleanupConnections() {
     audioElements.forEach(audio => audio.remove());
     audioElements.clear();
     audioSenders.clear();
+    distances.clear();
     if (localStream) {
         localStream.getTracks().forEach(track => track.stop());
     }
@@ -467,7 +482,7 @@ function setupUIListeners() {
     // Sliders
     document.getElementById('input_slider').addEventListener('input', updateGainFromSlider);
     document.getElementById('sensitivity_slider').addEventListener('input', updateSensitivity);
-    document.getElementById('volume_slider').addEventListener('input', updateMasterVolume);
+    document.getElementById('volume_slider').addEventListener('input', updateVolumes);
 
     // Cleanup on unload
     window.addEventListener('beforeunload', () => {
@@ -487,7 +502,7 @@ function toggleSettings() {
 // Initialization
 async function init() {
     socket = io(SOCKET_URL, { rejectUnauthorized: false });
-    socket.emit('join', { sessionId });
+    socket.emit('join', { sessionId: sessionId});
     setupSocketHandlers();
     setupUIListeners();
     await getMic();
