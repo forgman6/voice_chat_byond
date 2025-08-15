@@ -5,30 +5,39 @@ const { sendJSON } = require('./byondCommunication');
 function createConnectionHandler(byondPort, io) {
     return function handleConnection(socket) {
         console.log('A user connected:', socket.id);
-        if(!socketIdToUserCode.get(socket.id)) {
-            console.log(`id without userCode ${socket.id} disconnecting`);
-                socket.emit('update', { type: 'status', data: 'disconnected from server' });
-            socket.disconnect();
-        }
+
+        // Start a 5-second timer for authentication (adjust as needed)
+        const authTimer = setTimeout(() => {
+            if (!socketIdToUserCode.get(socket.id)) {
+                console.log(`Unauthenticated socket ${socket.id} timed out, disconnecting`);
+                socket.emit('update', { type: 'status', data: 'Authentication timeout' });
+                socket.disconnect();
+            }
+        }, 5000);
+
         socket.on('join', (data) => {
             const sessionId = data.sessionId;
             const userCode = sessionIdToUserCode.get(sessionId);
             if (userCode) {
-                userCodeToSocketId.set(userCode, socket.id);
-                socketIdToUserCode.set(socket.id, userCode);
-                sessionIdToUserCode.delete(sessionId);
-                joinInitialRoom(userCode);
-                socket.userCode = userCode;
-                console.log(`Associated userCode ${userCode} with socket ${socket.id}`);
-                socket.emit('update', { type: 'status', data: 'Connected successfully' });
-                sendJSON({ 'registered': userCode }, byondPort);
+                // Clear the timer on successful auth
+                clearTimeout(authTimer);
+
+                // Avoid re-associating if already set (edge case for multiple 'join' emits)
+                if (!socket.userCode) {
+                    userCodeToSocketId.set(userCode, socket.id);
+                    socketIdToUserCode.set(socket.id, userCode);
+                    sessionIdToUserCode.delete(sessionId);
+                    socket.userCode = userCode;
+                    console.log(`Associated userCode ${userCode} with socket ${socket.id}`);
+                    socket.emit('update', { type: 'status', data: 'Connected successfully' });
+                    sendJSON({ 'registered': userCode }, byondPort);
+                }
             } else {
                 console.log('Invalid sessionId', sessionId);
                 socket.emit('update', { type: 'status', data: 'bad sessionId >:(' });
                 socket.disconnect();
             }
-        });
-
+        });        
         socket.on('disconnect_page', () => {
             const userCode = socketIdToUserCode.get(socket.id);
             if (userCode) {
@@ -44,24 +53,27 @@ function createConnectionHandler(byondPort, io) {
         socket.on('offer', (data) => {
             const { to, offer } = data;
             const targetSocketId = userCodeToSocketId.get(to);
-            if (targetSocketId) {
-                io.to(targetSocketId).emit('offer', { from: socket.userCode, offer });
+            const socket_sending = io.sockets.sockets.get(targetSocketId)
+            if (targetSocketId && socket) {
+                socket_sending.emit('offer', { from: socket.userCode, offer });
             }
         });
 
         socket.on('answer', (data) => {
             const { to, answer } = data;
             const targetSocketId = userCodeToSocketId.get(to);
-            if (targetSocketId) {
-                io.to(targetSocketId).emit('answer', { from: socket.userCode, answer });
+            const socket_sending = io.sockets.sockets.get(targetSocketId)
+            if (targetSocketId && socket) {
+                socket_sending.emit('answer', { from: socket.userCode, answer });
             }
         });
 
         socket.on('ice-candidate', (data) => {
             const { to, candidate } = data;
             const targetSocketId = userCodeToSocketId.get(to);
-            if (targetSocketId) {
-                io.to(targetSocketId).emit('ice-candidate', { from: socket.userCode, candidate });
+            const socket_sending = io.sockets.sockets.get(targetSocketId)
+            if (targetSocketId && socket) {
+                socket_sending.emit('ice-candidate', { from: socket.userCode, candidate });
             }
         });
 

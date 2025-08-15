@@ -11,6 +11,9 @@ proc/generate_userCode(client/C)
     return .
 
 mob/verb/join_vc()
+    var/check_userCode = SSVOICE.client_userCode_map[ref(client)]
+    if(check_userCode) //client already connected
+        SSVOICE.disconnect(check_userCode, from_byond= TRUE)
     var/sessionId = md5("[world.time][rand()][world.realtime][rand(0,9999)][client.address][client.computer_id]") // Generate unique session ID secure shit player can modify
     var/userCode = generate_userCode(client)
     while(userCode in SSVOICE.userCode_client_map) // ensure unique, should almost never run

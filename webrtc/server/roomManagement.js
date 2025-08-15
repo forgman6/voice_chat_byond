@@ -1,68 +1,4 @@
-const { userCodetoRoomName, rooms, userCodeToSocketId } = require('./state');
-function joinInitialRoom(userCode, roomName = 'NONE') {
-    userCodetoRoomName.set(userCode, roomName);
-    rooms[roomName].push(userCode);
-}
-
-function moveUserToRoom(userCode, newRoomName, io) {
-    const currentRoom = userCodetoRoomName.get(userCode);
-    if (currentRoom === newRoomName) {
-        console.log(`client moved to same room, currentRoom:${currentRoom} newRoomName:${newRoomName}`);
-        return;
-    }
-
-    if (currentRoom) {
-        const index = rooms[currentRoom].indexOf(userCode);
-        if (index > -1) {
-            rooms[currentRoom].splice(index, 1);
-        }
-        for (let otherUserCode of rooms[currentRoom]) {
-            const otherSocketId = userCodeToSocketId.get(otherUserCode);
-            if (otherSocketId) {
-                io.to(otherSocketId).emit('user-left', { userCode });
-            }
-        }
-    }
-
-    if (!rooms[newRoomName]) {
-        console.log('bad roomname banbanban');
-        return;
-    }
-    userCodetoRoomName.set(userCode, newRoomName);
-    rooms[newRoomName].push(userCode);
-
-    const otherUsers = rooms[newRoomName].filter(uc => uc !== userCode);
-    const socketId = userCodeToSocketId.get(userCode);
-    if (socketId) {
-        io.to(socketId).emit('room-users', { room: newRoomName, users: otherUsers });
-    }
-
-    for (let otherUserCode of otherUsers) {
-        const otherSocketId = userCodeToSocketId.get(otherUserCode);
-        if (otherSocketId) {
-            io.to(otherSocketId).emit('user-joined', { userCode });
-        }
-    }
-
-    console.log(`changeRoom userCode:${userCode} roomName:${newRoomName} -> ${rooms[newRoomName]}`);
-}
-
-function leaveRoom(userCode, io) {
-    const currentRoom = userCodetoRoomName.get(userCode);
-    if (currentRoom) {
-        const index = rooms[currentRoom].indexOf(userCode);
-        if (index > -1) {
-            rooms[currentRoom].splice(index, 1);
-        }
-        userCodetoRoomName.delete(userCode);
-        for (let otherUserCode of rooms[currentRoom]) {
-            const otherSocketId = userCodeToSocketId.get(otherUserCode);
-            if (otherSocketId) {
-                io.to(otherSocketId).emit('user-left', { userCode });
-            }
-        }
-    }
-}
+const {userCodeToSocketId } = require('./state');
 
 const handleLocationPacket = (packet, io) => {
     for (const zlevel in packet) {
@@ -87,12 +23,13 @@ const handleLocationPacket = (packet, io) => {
             }
 
             const socketId = userCodeToSocketId.get(userCode);
-            if (socketId) {
+            const socket = io.sockets.sockets.get(socketId)
+            if (socketId && socket) {
                 const out_packet = {peers: peers, own: userCode}
                 if (Object.keys(peers).length === 0) {
-                    io.to(socketId).emit('loc', { none: 1 });
+                    socket.emit('loc', { none: 1 });
                 } else {
-                    io.to(socketId).emit('loc', out_packet);
+                    socket.emit('loc', out_packet);
                 }
             } else {
                 // Optional: Log if userCode has no associated socket
@@ -101,5 +38,5 @@ const handleLocationPacket = (packet, io) => {
         }
     }
 };
-module.exports = { joinInitialRoom, moveUserToRoom, leaveRoom, handleLocationPacket};
+module.exports = {handleLocationPacket};
 

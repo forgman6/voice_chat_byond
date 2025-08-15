@@ -7,4 +7,8 @@
 - [x] fix audio playback
 - [x] clean up code for when a browser gets closed
 - [x] clean up code for when byond gets closed
+- [x] remove incorrect io.to function
+- [x] make invalid sessions disconnect
 - [ ] optimize the neighbor function.
+- [ ] set it up so it works outside of localhost
+- [ ] try phone to local to test
