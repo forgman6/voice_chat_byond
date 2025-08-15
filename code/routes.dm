@@ -50,3 +50,5 @@ world/Topic(T, Addr, Master, Keys)
     if(data["voice_activity"])
         SSVOICE.toggle_active(data["voice_activity"], data["active"])    
         return
+    if(data["disconnect"])
+        SSVOICE.disconnect(userCode= data["disconnect"])

@@ -2,7 +2,9 @@
 - [x] port tools
 - [x] byond remove rooms
 - [x] node remove rooms
-- [ ] get mute deafen working again, 
-- [ ] switch track to null if not sending
-- [ ] clean up code for when a browser gets closed
+- [x] get mute deafen working again, 
+- [x] switch track to null if not sending
+- [x] fix audio playback
+- [x] clean up code for when a browser gets closed
+- [x] clean up code for when byond gets closed
 - [ ] optimize the neighbor function.

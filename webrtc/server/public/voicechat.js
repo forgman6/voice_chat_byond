@@ -195,23 +195,30 @@ function setupVoiceActivityDetection() {
         const rms = getRMS();
         const now = Date.now();
 
-        // Update visual indicator
         const indicator = document.getElementById('mic_test_visual_indicator');
         if (indicator) {
             const level = Math.min(1, rms / 0.5) * 100;
-            indicator.style.backgroundColor = isVoiceActive ? 'green' : 'grey';
+            const detected = rms > volumeThreshold;
+            indicator.style.backgroundColor = detected ? 'green' : 'grey';
             indicator.style.width = `${level}%`;
         }
 
-        if (rms > volumeThreshold) {
-            lastActiveTime = now;
-            if (!isVoiceActive) {
-                isVoiceActive = true;
-                handleVoiceActivityChange(true);
+        if (!isManuallyMuted) {
+            if (rms > volumeThreshold) {
+                lastActiveTime = now;
+                if (!isVoiceActive) {
+                    isVoiceActive = true;
+                    handleVoiceActivityChange(true);
+                }
+            } else if (isVoiceActive && now - lastActiveTime > VAD_DEBOUNCE_TIME) {
+                isVoiceActive = false;
+                handleVoiceActivityChange(false);
             }
-        } else if (isVoiceActive && now - lastActiveTime > VAD_DEBOUNCE_TIME) {
-            isVoiceActive = false;
-            handleVoiceActivityChange(false);
+        } else {
+            if (isVoiceActive) {
+                isVoiceActive = false;
+                handleVoiceActivityChange(false);
+            }
         }
 
         requestAnimationFrame(monitorAudio);
@@ -244,6 +251,10 @@ function toggleMute(forceMute = false) {
         return;
     }
     isManuallyMuted = forceMute ? true : !isManuallyMuted;
+    if (isManuallyMuted && isVoiceActive) {
+        isVoiceActive = false;
+        handleVoiceActivityChange(false);
+    }
     updateAudioSenders();
     toggleButton('mute_toggle', !isManuallyMuted);
 }
@@ -251,10 +262,14 @@ function toggleMute(forceMute = false) {
 function toggleDeafen(forceDeafen = false) {
     if (!localStream) return;
     isDeafened = forceDeafen ? true : !isDeafened;
-    isManuallyMuted = isDeafened; // Sync mute with deafen
+    isManuallyMuted = isDeafened;
     audioElements.forEach(audio => {
         audio.muted = isDeafened;
     });
+    if (isDeafened && isVoiceActive) {
+        isVoiceActive = false;
+        handleVoiceActivityChange(false);
+    }
     updateAudioSenders();
     toggleButton('mute_toggle', !isManuallyMuted);
     toggleButton('deafen_toggle', !isDeafened);
@@ -264,7 +279,8 @@ function toggleDeafen(forceDeafen = false) {
 function startMicTestPlayback() {
     testAudioContext = new AudioContext();
     testSource = testAudioContext.createMediaStreamSource(localStream);
-    delayNode = testAudioContext.createDelay(2);
+    delayNode = testAudioContext.createDelay(4);
+    delayNode.delayTime = 4
     testSource.connect(delayNode);
     delayNode.connect(testAudioContext.destination);
 }
@@ -433,6 +449,7 @@ function setupSocketHandlers() {
         console.log(`Socket disconnected: ${reason}`);
         cleanupConnections();
         toggleRoomStatus(false);
+        updateStatus("disconnected from server")
     });
 
     socket.on('mute_mic', () => {
@@ -484,15 +501,32 @@ function setupUIListeners() {
     document.getElementById('sensitivity_slider').addEventListener('input', updateSensitivity);
     document.getElementById('volume_slider').addEventListener('input', updateVolumes);
 
+// Prompt and emit on beforeunload
+    window.addEventListener('beforeunload', (event) => {
+        if (socket && socket.connected) {
+            socket.emit('disconnect_page');
+        }
+        event.returnValue = 'Are you sure you want to disconnect?';
+    });
+
     // Cleanup on unload
-    window.addEventListener('beforeunload', () => {
+    window.addEventListener('unload', () => {
         if (vadAudioContext) vadAudioContext.close();
         if (localStream) {
             localStream.getTracks().forEach(track => track.stop());
         }
+        cleanupConnections();
     });
 }
 
+// socket.on('disconnectFromServer', () => {
+//     if (vadAudioContext) vadAudioContext.close();
+//     if (localStream) {
+//         localStream.getTracks().forEach(track => track.stop());
+//     }
+//     updateStatus("disconnected from server")
+
+// })
 function toggleSettings() {
     const settingsMenu = document.getElementById('settings');
     const isOpen = settingsMenu.classList.toggle('open');
@@ -502,7 +536,7 @@ function toggleSettings() {
 // Initialization
 async function init() {
     socket = io(SOCKET_URL, { rejectUnauthorized: false });
-    socket.emit('join', { sessionId: sessionId});
+    socket.emit('join', { sessionId: sessionId });
     setupSocketHandlers();
     setupUIListeners();
     await getMic();

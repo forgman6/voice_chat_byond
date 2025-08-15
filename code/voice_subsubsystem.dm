@@ -62,3 +62,26 @@ datum/vc/proc/mute_mic(mob_ref, deafen=FALSE)
         return
     var/params = alist(cmd = deafen ? "deafen" : "mute_mic", userCode = userCode)
     send_json(params)
+
+
+datum/vc/proc/disconnect(userCode, from_byond= FALSE)
+    if(!userCode)
+        CRASH("your a retarded faggot userCode: [userCode || "null"]")
+        return
+
+    toggle_active(userCode, FALSE)
+    var/client_ref = userCode_client_map[userCode]
+    userCode_client_map.Remove(userCode)
+    client_userCode_map.Remove(client_ref)
+
+    if(from_byond)
+        send_json(alist(cmd="disconnect", userCode=userCode))
+    vc_clients -= userCode
+
+mob/Logout()
+    . = ..()
+    var/userCode = SSVOICE.client_userCode_map[ref(client)]
+    if(!userCode)
+        return
+    SSVOICE.disconnect(userCode, from_byond= TRUE)
+    

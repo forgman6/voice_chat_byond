@@ -88,6 +88,19 @@ function handleRequest(data, byondPort, io, shutdown_function) {
                 io.to(socketId).emit("mute_mic");
             },
             loc: (data) => handleLocationPacket(data, io),
+
+            disconnect: (data) => {
+                if (!data['userCode']) {
+                    const errorMsg = "Missing or invalid data: userCode";
+                    console.log(`error: ${errorMsg}`);
+                    sendJSON({ error: errorMsg, data: data }, byondPort);
+                    return;
+                }
+                const socketId = userCodeToSocketId.get(data['userCode'])
+                if(socketId) {
+                    io.to(socketId).emit('disconnect');
+                }
+            }
         };
 
         const handler = commandHandlers[cmd];

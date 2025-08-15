@@ -5,7 +5,11 @@ const { sendJSON } = require('./byondCommunication');
 function createConnectionHandler(byondPort, io) {
     return function handleConnection(socket) {
         console.log('A user connected:', socket.id);
-
+        if(!socketIdToUserCode.get(socket.id)) {
+            console.log(`id without userCode ${socket.id} disconnecting`);
+                socket.emit('update', { type: 'status', data: 'disconnected from server' });
+            socket.disconnect();
+        }
         socket.on('join', (data) => {
             const sessionId = data.sessionId;
             const userCode = sessionIdToUserCode.get(sessionId);
@@ -25,14 +29,15 @@ function createConnectionHandler(byondPort, io) {
             }
         });
 
-        socket.on('disconnect', () => {
-            const userCode = socket.userCode;
+        socket.on('disconnect_page', () => {
+            const userCode = socketIdToUserCode.get(socket.id);
             if (userCode) {
+                sendJSON({disconnect: userCode}, byondPort);
                 userCodeToSocketId.delete(userCode);
                 socketIdToUserCode.delete(socket.id)
-                leaveRoom(userCode, io);
                 console.log(`Removed userCode ${userCode} on disconnect`);
             }
+            socket.disconnect();
             console.log('User disconnected:', socket.id);
         });
 
