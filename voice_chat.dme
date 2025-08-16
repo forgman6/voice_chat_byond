@@ -12,7 +12,7 @@
 // BEGIN_PREFERENCES
 #define DEBUG
 // uncomment to show packets sent too and from node in world.log
-#define LOG_TRAFFIC
+// #define LOG_TRAFFIC
 // END_PREFERENCES
 
 // BEGIN_INCLUDE

@@ -164,6 +164,7 @@ function updateVolumes() {
         const dist = distances.get(userCode) || 0;
         const baseVolume = Math.max(0, 1 - dist / MAX_DIST_FOR_VOLUME);
         audio.volume = masterVolume * baseVolume;
+        console.log(`basevolume ${baseVolume}`)
     });
 }
 
@@ -401,7 +402,7 @@ function setupSocketHandlers() {
                 createPeerConnection(code, sendOffer);
             });
 
-            distances = new Map(Object.entries(data));
+            distances = new Map(Object.entries(peers));
             updateVolumes();
             toggleRoomStatus(peerConnections.size > 0);
         }
