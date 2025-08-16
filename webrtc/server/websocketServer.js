@@ -9,10 +9,22 @@ function startWebSocketServer(byondPort) {
         key: fs.readFileSync(__dirname + '/certs/key.pem'),
         cert: fs.readFileSync(__dirname + '/certs/cert.pem')
     };
-
     const app = express();
     const server = https.createServer(options, app);
     const io = new Server(server);
+
+    // Add CSP middleware here
+    app.use((req, res, next) => {
+        res.setHeader('Content-Security-Policy',
+            "default-src 'self';" +
+            "script-src 'self' https://cdn.socket.io;" +
+            "style-src 'self';" +
+            "img-src 'self' data:;" +
+            "connect-src 'self' wss://*;" +
+            "media-src 'self' blob:;"  // For voice chat audio streams
+        );
+        next();
+    });
 
     app.use(express.static(__dirname + '/public'));
     app.get('/', (req, res) => {
