@@ -34,7 +34,13 @@ datum/vc/proc/send_client_locs()
         var/mob/M = locate(userCode_client_map[userCode])?.mob
         if(!M)
             continue 
-        var/z = "[M.z]"
+        var/z
+        var/client/client = M.client || M.dummy_client
+        if(client.room)
+            z = client.room
+        else
+            z = "[M.z]"
+            
         if(!params[z])
             params[z] = alist()
         params[z][userCode] = list(M.x, M.y)

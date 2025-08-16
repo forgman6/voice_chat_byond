@@ -26,15 +26,21 @@ mob/verb/join_vc()
     send_json(paramstuff)
     SSVOICE.link_userCode_client(userCode, client)
     
+client  
+    var/room //treated like its own zlevel if set, so anyone with room var will can talk to eachother through proximity chat
+            // useful for shit like ghost, or team mobs like xenos or maybe even capture the flag teams
+
 fake_client
     var/mob/mob
-
+    var/room
+    
 mob/verb/make_dummy_client()
     var/global/number = 1
     var/list/paramstuff = alist(cmd="register")
     var/id = "dummy_[number]"
     number ++
     src << link("https://localhost:3000?sessionId=[id]")
+    // world.log << "https://[ world.internet_address  || "localhost" ]:3000?sessionId=[id]"
     paramstuff["userCode"] = "[id]"
     paramstuff["sessionId"] = "[id]"
     send_json(paramstuff)
@@ -54,3 +60,10 @@ mob/verb/deafen()
 
 mob/verb/send_locs()
     SSVOICE.send_client_locs()
+
+mob/verb/change_room(var/userCode in SSVOICE.vc_clients)
+    var/room = input("room_name") 
+    var/client/C = locate(SSVOICE.userCode_client_map[userCode])
+    if(!C)
+        return
+    C.room = room
