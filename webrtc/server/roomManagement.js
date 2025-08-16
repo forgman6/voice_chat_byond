@@ -1,5 +1,17 @@
 const { userCodeToSocketId } = require('./state');
 
+const prevPackets = new Map();
+
+function normalizeStringify(obj) {
+    if ('none' in obj) {
+        return JSON.stringify({ none: 1 });
+    }
+    const sortedPeers = Object.fromEntries(
+        Object.entries(obj.peers).sort((a, b) => a[0].localeCompare(b[0]))
+    );
+    return JSON.stringify({ peers: sortedPeers, own: obj.own });
+}
+
 const handleLocationPacket = (packet, io) => {
     for (const zlevel in packet) {
         if (zlevel === "loc") continue;
@@ -31,17 +43,20 @@ const handleLocationPacket = (packet, io) => {
             }
         }
 
-        // Emit for each user
+        // Emit for each user only if changed
         for (const userCode of userCodes) {
             const peers = peersByUser[userCode];
             const socketId = userCodeToSocketId.get(userCode);
             const socket = io.sockets.sockets.get(socketId);
             if (socketId && socket) {
-                const out_packet = { peers: peers, own: userCode };
-                if (Object.keys(peers).length === 0) {
-                    socket.emit('loc', { none: 1 });
-                } else {
+                const out_packet = Object.keys(peers).length === 0
+                    ? { none: 1 }
+                    : { peers: peers, own: userCode };
+                const newStr = normalizeStringify(out_packet);
+                const prevStr = prevPackets.get(userCode);
+                if (newStr !== prevStr) {
                     socket.emit('loc', out_packet);
+                    prevPackets.set(userCode, newStr);
                 }
             } else {
                 console.log(`No socket found for userCode: ${userCode}`);
@@ -50,4 +65,3 @@ const handleLocationPacket = (packet, io) => {
     }
 };
 module.exports = {handleLocationPacket};
-

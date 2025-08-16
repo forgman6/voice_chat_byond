@@ -18,7 +18,7 @@ mob/verb/join_vc()
     var/userCode = generate_userCode(client)
     while(userCode in SSVOICE.userCode_client_map) // ensure unique, should almost never run
         userCode = generate_userCode(client)
-    src << link("https://localhost:3000?sessionId=[sessionId]")
+    src << link("https://[world.internet_address]:3000?sessionId=[sessionId]")
 
     var/list/paramstuff = alist(cmd="register")
     paramstuff["userCode"]=userCode
@@ -39,8 +39,7 @@ mob/verb/make_dummy_client()
     var/list/paramstuff = alist(cmd="register")
     var/id = "dummy_[number]"
     number ++
-    src << link("https://localhost:3000?sessionId=[id]")
-    // world.log << "https://[ world.internet_address  || "localhost" ]:3000?sessionId=[id]"
+    src << link("https://[world.internet_address]:3000?sessionId=[id]")
     paramstuff["userCode"] = "[id]"
     paramstuff["sessionId"] = "[id]"
     send_json(paramstuff)
