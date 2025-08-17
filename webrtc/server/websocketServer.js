@@ -3,6 +3,7 @@ const https = require('https');
 const fs = require('fs');
 const { Server } = require('socket.io');
 const { createConnectionHandler } = require('./websocketHandlers');
+const helmet = require('helmet');
 
 function startWebSocketServer(byondPort) {
     const options = {
@@ -13,12 +14,19 @@ function startWebSocketServer(byondPort) {
     const server = https.createServer(options, app);
     const io = new Server(server);
 
-    // Add CSP middleware here
-    app.use((req, res, next) => {
-        res.setHeader('Content-Security-Policy',
-            "default-src 'self';");
-        next();
-    });
+    // Use Helmet to set up CSP and other security headers
+    app.use(helmet({
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'",],
+                scriptSrc: ["'self'", "'unsafe-inline'"],
+                styleSrc: ["'self'", "'unsafe-inline'"],
+                connectSrc: ["'self'"],
+                // Add more directives as needed, e.g., for media if your voice chat requires it:
+                // mediaSrc: ["'self'", "blob:", "data:"],
+            }
+        }
+    }));
 
     app.use(express.static(__dirname + '/public'));
     app.get('/', (req, res) => {

@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "express": "^5.1.0",
+    "helmet": "^8.1.0",
     "minimist": "^1.2.8",
     "socket.io": "^4.8.1"
   }
