@@ -1,14 +1,6 @@
 #!/bin/bash
+set -e  
 
-# build script for Linux Debian environment.
-# This script installs required packages, downloads and installs BYOND,
-# builds Node.js components, shared libraries, and compiles the DM project.
-# It dynamically detects the project directory name for flexibility.
-
-set -e  # Exit immediately if a command exits with a non-zero status.
-
-
-# Detect the current project directory name dynamically.
 PROJECT_NAME=$(basename "$PWD")
 BYOND_VERSION="516"
 BYOND_BUILD="516.1666"
@@ -25,8 +17,8 @@ sudo apt install -y libc6:i386 libstdc++6:i386 libgcc1:i386 zlib1g:i386 zip gcc-
 
 echo "Installing BYOND version ${BYOND_BUILD}..."
 cd ..
-# lummoxJR is a faggot and blocks datacenter ips 
-# wget "$BYOND_URL" 
+# lummoxJR is a faggot and blocks datacenter ips so this might not work
+wget "$BYOND_URL" 
 unzip "$BYOND_ZIP" && rm "$BYOND_ZIP"
 cd byond && sudo make install
 cd "../${PROJECT_NAME}"
@@ -34,7 +26,6 @@ cd "../${PROJECT_NAME}"
 echo "Building Node.js components..."
 cd webrtc
 npm install
-sudo setcap 'cap_net_bind_service=+ep' `which node`
 echo "Building shared library..."
 cd ../pipes/linux && make
 

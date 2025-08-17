@@ -11,7 +11,7 @@
 - [x] make invalid sessions disconnect
 - [x] optimize the neighbor function.
 - [x] set it up so it works outside of localhost
-- [ ] figure out router and hosting bullshit
-- [ ] test previous function 
-- [ ] make location shit tick every 300 ms 
+- [ ] test over none local host
+- [x] make location shit tick every 300 ms 
 - [x] add room var to client that gets treated like zlevel.
+- [ ] test rooms outside localhost  

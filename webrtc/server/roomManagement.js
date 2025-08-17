@@ -43,7 +43,7 @@ const handleLocationPacket = (packet, io) => {
             }
         }
 
-        // Emit for each user only if changed
+        // if changed emit
         for (const userCode of userCodes) {
             const peers = peersByUser[userCode];
             const socketId = userCodeToSocketId.get(userCode);

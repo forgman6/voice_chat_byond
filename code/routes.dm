@@ -2,9 +2,7 @@ proc/json_encode_sanitize(list/data)
     . = json_encode(data)
     //NOT in: alphanumeric, ", {}, :, commas, spaces, []
     var/static/regex/r = new/regex(@'[^\w"{}:,\s\[\]]', "g")
-    // Replace unwanted characters with empty string
     . = r.Replace(., "")
-    // Escape quotes and backslashes for command-line safety
     . = replacetext(., "\\", "\\\\")
     return .
 

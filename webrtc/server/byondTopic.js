@@ -1,4 +1,4 @@
-// credit to https://github.com/TamberP/byond.topic thank you, bong furry!
+// credit to https://github.com/TamberP/byond.topic kys furry!
 
 
 const net = require('net');
@@ -30,9 +30,9 @@ function buildPacket(data) {
         reject(new Error(`Data exceeds max size data size: ${packetSize}`));
         return;
     }
-    const headerBuf = Buffer.alloc(9);  // 9 bytes, all initialized to 0x00
-    headerBuf[1] = 0x83;  // Write 0x83 at position 1
-    headerBuf.writeUInt16BE(packetSize, 2);  // Write packetSize at position 2 (2 bytes, big-endian)
+    const headerBuf = Buffer.alloc(9);  //0x00
+    headerBuf[1] = 0x83;  
+    headerBuf.writeUInt16BE(packetSize, 2); 
     const queryBuf = Buffer.from(dataString, 'utf8');
     const nullBuf = Buffer.from([0]);
     return packet = Buffer.concat([headerBuf, queryBuf, nullBuf]);
@@ -68,7 +68,7 @@ function sendByondTopic(host, port, data, timeout = 10000) {
         client.connect(port, host, () => {
             // console.log('Packet (hex):', packet.toString('hex'));
             client.write(packet, () => {
-                client.unref(); // Allows Node.js to continue without waiting for socket closure
+                client.unref(); // fast
                 resolve();
             });
         });

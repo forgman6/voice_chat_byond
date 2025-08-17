@@ -5,6 +5,7 @@ var/global/datum/vc/SSVOICE = new()
     
 // shit you want the byond end to do after connection to node established
 datum/vc/proc/handshaked()
+    return
 
 datum/vc
     var/list/vc_clients = alist() //userCodes client associated thats been CONFIRMED
@@ -48,7 +49,7 @@ datum/vc/proc/send_client_locs()
 
 datum/vc/proc/toggle_active(userCode, is_active)
     if(!userCode || isnull(is_active))
-        // CRASH("null params")
+        // CRASH("null params go fuck yourself retard")
         return
     var/mob/M = locate(src.userCode_client_map[userCode])?.mob
     if(!M)

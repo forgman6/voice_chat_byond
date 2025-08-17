@@ -13,13 +13,6 @@ function startWebSocketServer(byondPort) {
     const server = https.createServer(options, app);
     const io = new Server(server);
 
-    // Add CSP middleware here
-    app.use((req, res, next) => {
-        res.setHeader('Content-Security-Policy',
-            "default-src 'self';");
-        next();
-    });
-
     app.use(express.static(__dirname + '/public'));
     app.get('/', (req, res) => {
         res.sendFile(__dirname + '/public/voicechat.html');
@@ -28,7 +21,7 @@ function startWebSocketServer(byondPort) {
     const handleConnection = createConnectionHandler(byondPort, io);
     io.on('connection', handleConnection);
 
-    const PORT = 443;
+    const PORT = 3000;
     server.listen(PORT, () => {
         console.log(`HTTPS server running on port ${PORT}`);
     });

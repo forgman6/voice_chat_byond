@@ -6,7 +6,6 @@ function createConnectionHandler(byondPort, io) {
     return function handleConnection(socket) {
         console.log('A user connected:', socket.id);
 
-        // Start a 5-second timer for authentication (adjust as needed)
         const authTimer = setTimeout(() => {
             if (!socketIdToUserCode.get(socket.id)) {
                 console.log(`Unauthenticated socket ${socket.id} timed out, disconnecting`);

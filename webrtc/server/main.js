@@ -4,12 +4,8 @@ const { startByondServer } = require('./ByondServer.js');
 const { monitorParentProcess } = require('./processUtils.js');
 const { sendJSON } = require('./byondCommunication');
 
-// Parse command-line arguments
 const argv = minimist(process.argv.slice(2));
 const byondPort = argv['byond-port'] ? argv['byond-port'] : 1337 ;
-
-// Write PID to file
-
 
 const shutdown_function = () => {
     disconnectAllClients(io);
