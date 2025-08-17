@@ -22,7 +22,7 @@ function startWebSocketServer(byondPort) {
     const handleConnection = createConnectionHandler(byondPort, io);
     io.on('connection', handleConnection);
 
-    const PORT = 3000;
+    const PORT = 443;
     server.listen(PORT, () => {
         console.log(`HTTPS server running on port ${PORT}`);
     });

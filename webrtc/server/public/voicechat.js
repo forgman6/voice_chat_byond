@@ -1,5 +1,4 @@
 // Constants and Configuration
-const PORT = '3000'; // For development; ignore self-signed cert
 const ICE_SERVERS = [
     { urls: 'stun:stun.l.google.com:19302' },
 ];
@@ -36,7 +35,8 @@ const urlParams = new URLSearchParams(window.location.search);
 const sessionId = urlParams.get('sessionId');
 
 // Extract ip from url
-const ip = window.location.host.split(':')[0]
+const address = window.location.host;
+
 // Utility Functions
 function toggleButton(buttonId, isActive) {
     const button = document.getElementById(buttonId);
@@ -557,7 +557,7 @@ function toggleSettings() {
 
 // Initialization
 async function init() {
-    socket = io(ip + ':' + PORT, { rejectUnauthorized: false });
+    socket = io(address, { rejectUnauthorized: false });
     socket.emit('join', { sessionId: sessionId });
     setupSocketHandlers();
     setupUIListeners();

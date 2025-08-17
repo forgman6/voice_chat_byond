@@ -1,4 +1,3 @@
-
 world/New()
     . = ..()
     //lifecycle shit
