@@ -34,7 +34,7 @@ cd "../${PROJECT_NAME}"
 echo "Building Node.js components..."
 cd webrtc
 npm install
-
+sudo setcap 'cap_net_bind_service=+ep' `which node`
 echo "Building shared library..."
 cd ../pipes/linux && make
 

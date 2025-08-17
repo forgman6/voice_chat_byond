@@ -16,13 +16,7 @@ function startWebSocketServer(byondPort) {
     // Add CSP middleware here
     app.use((req, res, next) => {
         res.setHeader('Content-Security-Policy',
-            "default-src 'self';" +
-            "script-src 'self' https://cdn.socket.io;" +
-            "style-src 'self';" +
-            "img-src 'self' data:;" +
-            "connect-src 'self' wss://*;" +
-            "media-src 'self' blob:;"  // For voice chat audio streams
-        );
+            "default-src 'self';");
         next();
     });
 
