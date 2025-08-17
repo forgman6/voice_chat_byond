@@ -7,6 +7,7 @@
 
 set -e  # Exit immediately if a command exits with a non-zero status.
 
+
 # Detect the current project directory name dynamically.
 PROJECT_NAME=$(basename "$PWD")
 BYOND_VERSION="516"
