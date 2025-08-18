@@ -1,6 +1,8 @@
 # byond build + runtime (port 1337)
 FROM ubuntu:22.04
 
+ARG PROJECT_NAME=voice_chat_byond
+ARG DME_FILE=voice_chat_byond.dme
 ARG BYOND_VERSION="516"
 ARG BYOND_BUILD="516.1666"
 
@@ -42,11 +44,13 @@ RUN cp /opt/byond/byondapi/*.h /app/pipes/ \
 WORKDIR /app/pipes
 RUN make
 
-# compile DM
+# compile DM project -> .dmb
 WORKDIR /app
-RUN DreamMaker "voice_chat_byond.dme" -clean
+RUN DreamMaker "$DME_FILE" -clean
 
+# expose byond runtime port
 EXPOSE 1337
 
-# safe launcher: compute DMB, sanity-check, then run
-CMD ["/bin/bash","-lc","exec /usr/local/byond/bin/DreamDaemon voice_chat_byond.dmb 1337 -trusted -logself -close"]
+# run DreamDaemon; tweak flags if you need world params
+# -trusted is common when you know what you’re doing; drop it if you don’t want it
+CMD ["bash","-lc","DreamDaemon \"${DME_FILE%.dme}.dmb\" 1337 -trusted -logself -close"]
