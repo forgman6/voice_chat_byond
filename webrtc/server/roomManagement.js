@@ -59,7 +59,7 @@ const handleLocationPacket = (packet, io) => {
                     prevPackets.set(userCode, newStr);
                 }
             } else {
-                console.log(`No socket found for userCode: ${userCode}`);
+                // console.log(`No socket found for userCode: ${userCode}`);
             }
         }
     }

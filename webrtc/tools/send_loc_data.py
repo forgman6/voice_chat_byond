@@ -1,5 +1,5 @@
-from pipes import windows
-# from pipes import linux
+
+from pipes import linux
 import json 
 import random as rand
 import math
@@ -20,4 +20,4 @@ for i in range(number_of_clients):
 
 json_out =  json.dumps(out, indent=None,)
 print(json_out)
-windows.send_to_pipe(json_out)
+linux.send_to_pipe(json_out)

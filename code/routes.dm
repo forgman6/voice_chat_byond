@@ -12,7 +12,7 @@ proc/send_json(list/data)
     #ifdef LOG_TRAFFIC
     world.log << "BYOND: [json]"
     #endif
-    call_ext("pipes/pipes.so", "SendJSON")(json, length(json), "/tmp/byond_node.sock")
+    call_ext("pipes/byondsocket.so", "byond:SendJSON")(json)
 
         
 world/Topic(T, Addr, Master, Keys)

@@ -349,16 +349,10 @@ function createPeerConnection(userCode, sendOffer) {
     pc.oniceconnectionstatechange = () => {
         const state = pc.iceConnectionState;
         console.log(`ICE connection state for ${userCode}: ${state}`);
-        if (state === 'failed') {
-            const hasSrflx = iceCandidates.some(c => c.type === 'srflx');
-            let advice = `WebRTC connection to ${userCode} failed. This happens with 10-20% of users. AI garbage troubleshooting tips:\n`;
-            if (!hasSrflx) {
-                advice += "- No public IP discovered (no server reflexive candidates). Check if UDP is blocked:\n  - Temporarily disable firewalls or antivirus software.\n  - Disable VPNs or proxies.\n  - Test your network with tools like test.webrtc.org.";
-            } else {
-                advice += "- Public IP discovered, but NAT traversal failed:\n  - Enable UPnP in your router settings.\n  - Set up port forwarding for a UDP port range (e.g., 50000-60000) to your device.\n  - Switch networks (e.g., from mobile data to WiFi or vice versa).\n  - Enable IPv6 if supported by your ISP for direct connectivity.\n  - Avoid double NAT by connecting directly to your modem if possible.";
-            }
-            updateStatus(advice);
-        }
+        // if (state === 'failed') {
+        //     let advice = `WebRTC connection to ${userCode} failed. see about:webrtc for more info. This happens with 10-20% of users<BR>Maybe one day we can afford a proper TURN server :\n`;
+        //     updateStatus(advice);
+        // }
     };
 
     pc.ontrack = (event) => {
@@ -372,7 +366,7 @@ function createPeerConnection(userCode, sendOffer) {
             .then(() => socket.emit('offer', { to: userCode, offer: pc.localDescription }))
             .catch(err => {
                 console.error('Failed to create offer:', err);
-                updateStatus(`Failed to create WebRTC offer for ${userCode}: ${err.message}. Check microphone permissions, browser compatibility, or network stability.`);
+                // updateStatus(`Failed to create WebRTC offer for ${userCode}: ${err.message}. Check microphone permissions, browser compatibility, or network stability.`);
             });
     }
 

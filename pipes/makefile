@@ -1,26 +1,29 @@
+# Makefile
+# Change this to point to wherever libbyond.so is stored from your BYOND installation.
+BYOND_PATH = ~/byond/bin
 
-CC = g++
+CC = gcc
+CPP = g++
+CFLAGS = -m32 -pthread -g -Wall -Wno-deprecated -O3 -fno-strict-aliasing
+LDFLAGS = -m32 -shared $(BYOND_PATH)/libbyond.so
+RM = rm -f
+TARGET_LIB = byondsocket.so
 
-CFLAGS = -m32 -fPIC -std=c++20 -I../byondapi
+OBJS = \
+	main.o \
+	byondapi_cpp_wrappers.o
 
-LDFLAGS =  -m32 -shared
+.PHONY: all
+all: ${TARGET_LIB}
 
-TARGET = pipes.so
+$(TARGET_LIB): $(OBJS)
+	$(CC) ${LDFLAGS} -o $@ $^
 
-SRC = so_main.cpp
+.cpp.o:
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -c $*.cpp -o $*.o
+.c.o:
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $*.c -o $*.o
 
-OBJ = $(SRC:.cpp=.o)
-
-all: $(TARGET)
-
-$(TARGET): $(OBJ)
-
-	$(CC) $(LDFLAGS) -o $@ $^
-
-%.o: %.cpp
-
-	$(CC) $(CFLAGS) -c -o $@ $<
-
+.PHONY: clean
 clean:
-
-	rm -f *.o $(TARGET)
+	-${RM} ${TARGET_LIB} ${OBJS}

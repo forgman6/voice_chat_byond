@@ -8,7 +8,7 @@ function startByondServer(byondPort, io, shutdown_function) {
             const jsonStr = data.toString('utf-8');
             try {
                 const json = JSON.parse(jsonStr);
-                console.log('Received JSON:', json);
+                // console.log('Received JSON:', json);
                 handleRequest(json, byondPort, io, shutdown_function);
             } catch (err) {
                 console.log(jsonStr);
