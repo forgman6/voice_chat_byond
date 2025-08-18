@@ -6,17 +6,13 @@ proc/json_encode_sanitize(list/data)
     . = replacetext(., "\\", "\\\\")
     return .
 
-proc/get_lib()
-    var/static/LIB_NAME = ((world.system_type == "UNIX") ? "pipes/linux/pipes.so" : "pipes/Release/pipes.dll")
-    . = LIB_NAME
-    return .
 
 proc/send_json(list/data)
     var/json = json_encode_sanitize(data)
     #ifdef LOG_TRAFFIC
     world.log << "BYOND: [json]"
     #endif
-    call_ext(get_lib(), "byond:SendJSON")(json, length(json))
+    call_ext("pipes/pipes.so", "SendJSON")(json, length(json), "/tmp/byond_node.sock")
 
         
 world/Topic(T, Addr, Master, Keys)

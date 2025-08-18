@@ -1,7 +1,4 @@
 mob/verb/tests()
-    world.log << "calling lib..."
-    world.log << call_ext(get_lib(), "byond:Test")()
-
     world.log << "send bad JSON..."
     var/params = alist(1="bad_key")
     send_json(params)
