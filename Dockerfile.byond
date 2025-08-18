@@ -14,11 +14,10 @@ RUN dpkg --add-architecture i386 \
 	&& apt-get upgrade -y \
 	&& apt-get install -y --no-install-recommends \
 		libc6:i386 libstdc++6:i386 zlib1g:i386 libgcc-s1:i386 \
-		libcurl4:i386 curl:i386 libnghttp2-14:i386 libidn2-0:i386 ca-certificates \
-		wget unzip make g++ g++-multilib \
+		wget unzip make g++ g++-multilib ca-certificates \
 	&& rm -rf /var/lib/apt/lists/*
 
-# install BYOND and also keep a copy of byondapi
+# install BYOND
 WORKDIR /tmp
 RUN set -e \
 	&& BYOND_ZIP="${BYOND_BUILD}_byond_linux.zip" \
@@ -26,19 +25,20 @@ RUN set -e \
 	&& unzip "$BYOND_ZIP" \
 	&& rm "$BYOND_ZIP" \
 	&& cd byond \
-	&& make install \
-	# stash the byond source (with byondapi) into /opt so we can use it later
-	&& mkdir -p /opt/byond \
-	&& cp -r /tmp/byond/* /opt/byond/ \
-	&& rm -rf /tmp/byond
+	&& make install
 
 # app source
 WORKDIR /app
 COPY . /app
 
-# copy byondapi headers/sources from /opt/byond
-RUN cp /opt/byond/byondapi/*.h /app/pipes/ \
-	&& cp /opt/byond/byondapi/*.cpp /app/pipes/
+# optional: copy byondapi headers/sources into pipes if present (won't fail if missing)
+# this mirrors your install.sh behavior but won’t brick the build if the folder isn’t there
+RUN bash -lc 'if(test -d /app/byondapi); then \
+		cp /app/byondapi/*.h /app/pipes || true; \
+		cp /app/byondapi/*.cpp /app/pipes || true; \
+	else \
+		echo "no byondapi/ found, skipping copy"; \
+	fi'
 
 # build your shared lib
 WORKDIR /app/pipes
