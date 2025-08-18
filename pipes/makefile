@@ -1,6 +1,6 @@
 # Makefile
 # Change this to point to wherever libbyond.so is stored from your BYOND installation.
-BYOND_PATH = ~/byond/bin
+BYOND_PATH = /opt/byond/bin
 
 CC = gcc
 CPP = g++

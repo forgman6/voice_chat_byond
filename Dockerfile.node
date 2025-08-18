@@ -1,18 +1,25 @@
-# node side (port 3000)
 FROM node:20-bookworm
 
-# workdir is repo root
-WORKDIR /app
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends python3 make g++ \
+	&& rm -rf /var/lib/apt/lists/*
 
-# only copy the webrtc subdir for faster builds
-COPY webrtc/package*.json ./webrtc/
-RUN cd webrtc && npm ci
+WORKDIR /app/webrtc
 
-# copy the rest of webrtc after deps to leverage caching
-COPY webrtc ./webrtc
+# copy manifests (lockfile optional)
+COPY webrtc/package*.json ./
+
+# install deps (prefer lock if present)
+RUN if [ -f package-lock.json ]; then \
+		echo "lockfile found -> npm ci"; \
+		npm ci; \
+	else \
+		echo "no lockfile -> npm install"; \
+		npm install; \
+	fi
+
+# now copy the rest
+COPY webrtc/. .
 
 EXPOSE 3000
-
-# if your package.json has "start", this Just Works
-WORKDIR /app/webrtc
 CMD ["npm","start"]
