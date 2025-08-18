@@ -1,0 +1,18 @@
+# node side (port 3000)
+FROM node:20-bookworm
+
+# workdir is repo root
+WORKDIR /app
+
+# only copy the webrtc subdir for faster builds
+COPY webrtc/package*.json ./webrtc/
+RUN cd webrtc && npm ci
+
+# copy the rest of webrtc after deps to leverage caching
+COPY webrtc ./webrtc
+
+EXPOSE 3000
+
+# if your package.json has "start", this Just Works
+WORKDIR /app/webrtc
+CMD ["npm","start"]
