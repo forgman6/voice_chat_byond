@@ -1,35 +1,16 @@
-// Linux BYOND API v516.1666
-#include "../byondapi/byondapi.h"
+// linux byondapi v 516.1666
+#include "../byondapi/byondapi.h" 
 #include "../byondapi/byondapi_cpp_wrappers.h"
+
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <mutex>
 #include <cstdlib>
-#include <cstring>
 
-// Global mutex for thread safety during socket operations
-static std::mutex socket_mutex;
-
-// Constants
-static const char* SOCKET_PATH = "/tmp/byond_node.sock"; // Consider using a more secure path in production
-
-// Helper function to return an error to the waiting proc
-static void ReturnError(const CByondValue* waiting_proc, const char* msg) {
-    CByondValue error;
-    ByondValue_SetStr(&error, msg);
-    Byond_Return(waiting_proc, &error);
-    ByondValue_DecRef(&error);
-}
-
-// Helper function to return success to the waiting proc
-static void ReturnSuccess(const CByondValue* waiting_proc) {
-    CByondValue ok;
-    ByondValue_SetStr(&ok, "OK");
-    Byond_Return(waiting_proc, &ok);
-    ByondValue_DecRef(&ok);
-}
+// Global mutex for thread safety
+static std::mutex ws_mutex;
+static const char* PIPE_NAME = "/tmp/byond_node.sock";  // Use a secure path, e.g., in your app's dir
 
 // Test function (synchronous)
 extern "C" BYOND_EXPORT CByondValue Test(u4c n, CByondValue v[]) {
@@ -38,77 +19,116 @@ extern "C" BYOND_EXPORT CByondValue Test(u4c n, CByondValue v[]) {
     ByondValue_SetStr(&out, "hello world");
     return out;
 }
+// Helper to get string from ByondValue with resizing
+bool GetByondString(const CByondValue& val, char** buffer, u4c* len) {
+    *buffer = nullptr;
+    *len = 0;
 
-// Send JSON via IPC (async with immediate return)
+    // First, query the required length (if API supports buffer=nullptr; falls back to loop if not)
+    if (!Byond_ToString(&val, nullptr, len)) {
+        if (*len == 0) {
+            return false;  // Likely not a string or real error
+        }
+    }
+    else {
+        // Unexpected success with nullptr buffer; treat as error
+        return false;
+    }
+
+    // Allocate exact size
+    *buffer = (char*)malloc(*len);
+    if (!*buffer) {
+        *len = 0;
+        return false;
+    }
+
+    // Attempt conversion
+    if (Byond_ToString(&val, *buffer, len)) {
+        return true;
+    }
+
+    // If failed (rare, since we allocated exact), enter resize loop with safety
+    u4c prev_len = *len;
+    while (!Byond_ToString(&val, *buffer, len)) {
+        if (*len == 0 || *len == prev_len) {  // Real failure or no progress (prevent infinite loop)
+            free(*buffer);
+            *buffer = nullptr;
+            *len = 0;
+            return false;
+        }
+
+        // Safe realloc
+        char* temp = (char*)realloc(*buffer, *len);
+        if (!temp) {
+            free(*buffer);
+            *buffer = nullptr;
+            *len = 0;
+            return false;
+        }
+        *buffer = temp;
+        prev_len = *len;
+    }
+
+    return true;
+}
+
+// Send JSON via IPC (await mode, cross-platform)
 extern "C" BYOND_EXPORT void SendJSON(u4c n, CByondValue v[], CByondValue waiting_proc) {
     if (n != 2 || !ByondValue_IsStr(&v[0]) || !ByondValue_IsNum(&v[1])) {
-        ReturnError(&waiting_proc, "Error: Expected string (JSON) and number (length)");
+        CByondValue error;
+        ByondValue_SetStr(&error, "Error: Expected string (JSON) and number (length)");
+        Byond_Return(&waiting_proc, &error);
+        ByondValue_DecRef(&error);
         return;
     }
 
     float len_float = ByondValue_GetNum(&v[1]);
     if (len_float <= 0) {
-        ReturnError(&waiting_proc, "Error: Invalid length argument");
+        CByondValue error;
+        ByondValue_SetStr(&error, "Error: Invalid length argument");
+        Byond_Return(&waiting_proc, &error);
+        ByondValue_DecRef(&error);
         return;
     }
     u4c len = static_cast<u4c>(len_float);
 
-    // Allocate buffer based on provided length (includes space for null terminator)
-    char* json = (char*)malloc(len + 1);
-    if (!json) {
-        ReturnError(&waiting_proc, "Error: Memory allocation failed");
-        return;
-    }
-
-    u4c buffer_size = len + 1;
-    if (!Byond_ToString(&v[0], json, &buffer_size)) {
+    char* json = nullptr;
+    u4c json_len = 0;
+    if (!GetByondString(v[0], &json, &json_len) || json_len - 1 != len) {
+        CByondValue error;
+        ByondValue_SetStr(&error, "Error: Could not resolve JSON string or length mismatch");
+        Byond_Return(&waiting_proc, &error);
+        ByondValue_DecRef(&error);
         free(json);
-        ReturnError(&waiting_proc, "Error: Failed to convert BYOND string");
         return;
     }
 
-    // Verify the actual length matches the provided length (buffer_size includes null terminator)
-    if (buffer_size != len + 1) {
-        free(json);
-        ReturnError(&waiting_proc, "Error: Length mismatch");
-        return;
-    }
-
-    // Lock for thread-safe socket operation
-    std::lock_guard<std::mutex> lock(socket_mutex);
-
-    // Create Unix domain socket
+    std::lock_guard<std::mutex> lock(ws_mutex);
+    // Linux Unix domain socket client
     int sock = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock == -1) {
+        CByondValue error;
+        ByondValue_SetStr(&error, "Error: Could not create socket");
+        Byond_Return(&waiting_proc, &error);
+        ByondValue_DecRef(&error);
         free(json);
-        ReturnError(&waiting_proc, "Error: Could not create socket");
         return;
     }
-
-    // Set up address
     struct sockaddr_un addr;
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, SOCKET_PATH, sizeof(addr.sun_path) - 1);
-
-    // Connect to socket
+    strcpy(addr.sun_path, PIPE_NAME);
     if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
-        free(json);
+        CByondValue error;
+        ByondValue_SetStr(&error, "Error: Could not connect to socket");
+        Byond_Return(&waiting_proc, &error);
+        ByondValue_DecRef(&error);
         close(sock);
-        ReturnError(&waiting_proc, "Error: Could not connect to socket");
+        free(json);
         return;
     }
 
-    // Send data (without null terminator)
     ssize_t bytes_written = write(sock, json, len);
-    free(json);
     close(sock);
-
-    if (bytes_written != static_cast<ssize_t>(len)) {
-        ReturnError(&waiting_proc, "Error: Failed to send all data");
-        return;
-    }
-
-    // Success: Return to waiting proc
-    ReturnSuccess(&waiting_proc);
+    free(json);
 }
