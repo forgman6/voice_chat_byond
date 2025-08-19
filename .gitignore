@@ -25,3 +25,6 @@ package-lock.json
 *.swp
 *.bak
 *.tmp
+
+# my own startup shit
+cmd.txt

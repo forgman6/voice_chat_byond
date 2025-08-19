@@ -9,8 +9,9 @@
     step_size = 32
     icon = 'Icons.dmi'
     icon_state = "m"
+    #ifdef DEBUG
     var/dummy_client
-
+    #endif
 /turf
     icon = 'Icons.dmi'
     icon_state = "floor"

@@ -11,10 +11,15 @@ datum/vc
     var/list/vc_clients = alist() //userCodes client associated thats been CONFIRMED
     var/list/userCode_client_map = alist() //userCode to clientRef
     var/list/client_userCode_map = alist() 
-
+    var/list/room_names = list() //list of all rooms to add at round start
+    var/list/rooms = alist() //a list of all existing rooms change with add_rooms and remove_rooms.
+    
 datum/vc/proc/link_userCode_client(userCode, client)
-//    if(!client|| !userCode || !istype(client, /client)) 
+    #ifndef DEBUG //for dummyclients
+    if(!client|| !userCode || !istype(client, /client)) 
+    #else
     if(!client|| !userCode)
+    #endif
         CRASH("go fuck yourself retard userCode:[userCode], client:[client]")
     var/client_ref = ref(client)
     userCode_client_map[userCode] = client_ref
@@ -36,7 +41,11 @@ datum/vc/proc/send_client_locs()
         if(!M)
             continue 
         var/z
+        #ifdef DEBUG
         var/client/client = M.client || M.dummy_client
+        #else
+        var/client/client = M.client
+        #endif
         if(client.room)
             z = client.room
         else
@@ -85,7 +94,7 @@ datum/vc/proc/disconnect(userCode, from_byond= FALSE)
         send_json(alist(cmd="disconnect", userCode=userCode))
     vc_clients -= userCode
 
-client.Del()
+client/Del()
     var/userCode = SSVOICE.client_userCode_map[ref(src)]
     if(userCode)
         SSVOICE.disconnect(userCode, from_byond= TRUE)

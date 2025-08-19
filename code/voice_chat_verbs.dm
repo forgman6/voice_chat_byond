@@ -29,7 +29,7 @@ mob/verb/join_vc()
 client  
     var/room //treated like its own zlevel if set, so anyone with room var will can talk to eachother through proximity chat
             // useful for shit like ghost, or team mobs like xenos or maybe even capture the flag teams
-
+#ifdef DEBUG
 fake_client
     var/mob/mob
     var/room
@@ -50,7 +50,9 @@ mob/verb/make_dummy_client()
     C.mob = dummy_mob
     dummy_mob.dummy_client = C
     SSVOICE.link_userCode_client(id, C)
-    
+
+#endif
+
 mob/verb/mute_self()
     SSVOICE.mute_mic(ref(client))
 
