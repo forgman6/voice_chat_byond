@@ -10,7 +10,7 @@
 // END_FILE_DIR
 
 // BEGIN_PREFERENCES
-// #define DEBUG
+#define DEBUG
 // uncomment to show packets sent too and from node in world.log
 // #define LOG_TRAFFIC
 // END_PREFERENCES

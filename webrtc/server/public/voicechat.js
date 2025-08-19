@@ -113,12 +113,11 @@ async function getMic() {
         await populateDevices();
         setupGainNode(localStream);
         setupVoiceActivityDetection();
-        document.getElementById('mic').remove();
+        socket.emit('mic_access_granted');
     } catch (err) {
         console.error('Failed to get microphone access:', err);
     }
 }
-
 // Gain and Volume Control
 function setupGainNode(stream) {
     const audioTrack = stream.getAudioTracks()[0];
@@ -541,7 +540,7 @@ function setupUIListeners() {
     document.getElementById('sensitivity_slider').addEventListener('input', updateSensitivity);
     document.getElementById('volume_slider').addEventListener('input', updateVolumes);
 
-// Prompt and emit on beforeunload
+    // Prompt and emit on beforeunload
     window.addEventListener('beforeunload', (event) => {
         if (socket && socket.connected) {
             socket.emit('disconnect_page');

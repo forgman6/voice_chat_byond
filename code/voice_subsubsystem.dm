@@ -3,7 +3,6 @@
 var/global/datum/vc/SSVOICE = new()
     
     
-// shit you want the byond end to do after connection to node established
 datum/vc/proc/handshaked()
     return
 
@@ -12,8 +11,55 @@ datum/vc
     var/list/userCode_client_map = alist() //userCode to clientRef
     var/list/client_userCode_map = alist() 
     var/list/room_names = list() //list of all rooms to add at round start
-    var/list/rooms = alist() //a list of all existing rooms change with add_rooms and remove_rooms.
+    var/list/current_rooms = alist() //a list of all existing rooms change with add_rooms and remove_rooms.
     
+
+datum/vc/New()
+    . = ..()
+    add_rooms(room_names)
+
+client  
+    var/room //treated like its own zlevel if set, so anyone with room var will can talk to eachother through proximity chat
+            // useful for shit like ghost, or team mobs like xenos or maybe even capture the flag teams
+#ifdef DEBUG
+fake_client
+    var/mob/mob
+    var/room
+#endif
+
+datum/vc/proc/add_rooms(list/rooms)
+
+    if(!islist(rooms))
+        rooms = list(rooms)
+    rooms.Remove(current_rooms) //remove existing rooms
+    for(var/room in rooms)
+        if(isnum(room))
+            CRASH("rooms cannot be numbers {room: [room]}")
+            continue
+        current_rooms[room] = list()
+
+datum/vc/proc/remove_rooms(list/rooms)
+    if(!islist(rooms))
+        rooms = list(rooms)
+    rooms &= current_rooms //remove nonexistant rooms
+    for(var/room in rooms)
+        for(var/userCode in current_rooms[room])
+            var/client/C = locate(userCode_client_map[userCode])
+            if(!C)
+                continue
+            C.room = null
+        current_rooms.Remove(room)
+
+datum/vc/proc/move_userCode_to_room(userCode, room)
+    if(!current_rooms.Find(room) || userCode in current_rooms[room])
+        return
+    var/client/C = locate(userCode_client_map[userCode])
+    if(!C)
+        // CRASH("dumb faggot {userCode: [userCode], client: [C || "null"]}")
+        return
+    C.room = room
+    current_rooms[room] += userCode
+
 datum/vc/proc/link_userCode_client(userCode, client)
     #ifndef DEBUG //for dummyclients
     if(!client|| !userCode || !istype(client, /client)) 

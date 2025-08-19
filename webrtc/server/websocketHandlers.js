@@ -28,14 +28,18 @@ function createConnectionHandler(byondPort, io) {
                     socket.userCode = userCode;
                     console.log(`Associated userCode ${userCode} with socket ${socket.id}`);
                     socket.emit('update', { type: 'status', data: 'Connected successfully' });
-                    sendJSON({ 'registered': userCode }, byondPort);
+                    // sendJSON({ 'registered': userCode }, byondPort);
                 }
             } else {
                 console.log('Invalid sessionId', sessionId);
                 socket.emit('update', { type: 'status', data: 'bad sessionId >:(' });
                 socket.disconnect();
             }
-        });        
+        });    
+        socket.on('mic_access_granted', () => {
+            const userCode = socketIdToUserCode.get(socket.id);
+            if(userCode) sendJSON({ 'registered': userCode }, byondPort);
+        })    
         socket.on('disconnect_page', () => {
             const userCode = socketIdToUserCode.get(socket.id);
             if (userCode) {
