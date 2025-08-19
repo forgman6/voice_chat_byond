@@ -4,7 +4,7 @@ const fs = require('fs');
 const { Server } = require('socket.io');
 const { createConnectionHandler } = require('./websocketHandlers');
 
-function startWebSocketServer(byondPort) {
+function startWebSocketServer(byondPort, nodePort) {
     const options = {
         key: fs.readFileSync(__dirname + '/certs/key.pem'),
         cert: fs.readFileSync(__dirname + '/certs/cert.pem')
@@ -21,7 +21,7 @@ function startWebSocketServer(byondPort) {
     const handleConnection = createConnectionHandler(byondPort, io);
     io.on('connection', handleConnection);
 
-    const PORT = 3000;
+    const PORT = nodePort;
     server.listen(PORT, () => {
         console.log(`HTTPS server running on port ${PORT}`);
     });

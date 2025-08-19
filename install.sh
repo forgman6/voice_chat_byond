@@ -13,7 +13,7 @@ echo "Adding i386 architecture and updating packages..."
 sudo dpkg --add-architecture i386
 sudo apt update
 sudo apt upgrade -y
-sudo apt install -y libc6:i386 libstdc++6:i386 libgcc1:i386 zlib1g:i386 zip gcc-multilib nodejs npm wget make curl:i386 g++ g++-multilib
+sudo apt install -y libc6:i386 libstdc++6:i386 libgcc1:i386 zlib1g:i386 zip gcc-multilib wget make curl:i386 g++ g++-multilib
 
 echo "Installing BYOND version ${BYOND_BUILD}..."
 cd ..

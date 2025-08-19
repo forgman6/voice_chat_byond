@@ -1,10 +1,12 @@
+#define BYONDPORT 1337
+#define NODEPORT 3312
+
 world/New()
     . = ..()
     //lifecycle shit
-    var/sneedport = 1337
-    OpenPort(sneedport)
+    OpenPort(BYONDPORT)
     spawn() start_processing()
-    spawn() shell("node ./webrtc/server/main.js --byond-port=[sneedport]")
+    spawn() shell("node ./webrtc/server/main.js --byond-port=[BYONDPORT] --node-port=[NODEPORT]")
 
 proc/start_processing()
     while(1)
