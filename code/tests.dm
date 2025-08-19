@@ -6,9 +6,9 @@ mob/verb/tests()
     send_json(params)
 
     world.log << "send json with no command..."
-    params = alist("message"="no command", "extra"="still no command")
+    params = alist(message="no command", "extra"="still no command")
     send_json(params)
 
     world.log << "send unknown command..."
-    params = alist("cmd"="nonexistant command")
+    params = alist(cmd="nonexistant command")
     send_json(params)

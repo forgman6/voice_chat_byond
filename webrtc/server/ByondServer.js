@@ -1,7 +1,7 @@
 const net = require('net');
 const { sendJSON } = require('./byondCommunication');
 const { handleRequest } = require('./ByondHandlers');
-const PIPE_NAME = process.platform === 'win32' ? '\\\\.\\pipe\\byond_node_pipe' : '/tmp/byond_node.sock';
+const PIPE_NAME = '/tmp/byond_node.sock';
 function startByondServer(byondPort, io, shutdown_function) {
     const ByondServer = net.createServer((stream) => {
         stream.on('data', (data) => {
@@ -21,7 +21,7 @@ function startByondServer(byondPort, io, shutdown_function) {
     });
 
     ByondServer.listen(PIPE_NAME, () => {
-        console.log(`Named pipe server listening on ${PIPE_NAME}`);
+        console.log(`socket server listening on ${PIPE_NAME}`);
     });
 
     ByondServer.on('error', (err) => {

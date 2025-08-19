@@ -338,6 +338,9 @@ function createPeerConnection(userCode, sendOffer) {
     }
 
     let iceCandidates = [];
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    const reconnectDelay = 500; // 0.5 seconds
 
     pc.onicecandidate = (event) => {
         if (event.candidate) {
@@ -349,10 +352,31 @@ function createPeerConnection(userCode, sendOffer) {
     pc.oniceconnectionstatechange = () => {
         const state = pc.iceConnectionState;
         console.log(`ICE connection state for ${userCode}: ${state}`);
-        // if (state === 'failed') {
-        //     let advice = `WebRTC connection to ${userCode} failed. see about:webrtc for more info. This happens with 10-20% of users<BR>Maybe one day we can afford a proper TURN server :\n`;
-        //     updateStatus(advice);
-        // }
+        if (state === 'failed' && reconnectAttempts < maxReconnectAttempts) {
+            console.log(`Reconnecting to ${userCode}, attempt ${reconnectAttempts + 1}`);
+            reconnectAttempts++;
+            setTimeout(() => {
+                // Clean up existing connection
+                pc.close();
+                peerConnections.delete(userCode);
+                audioElements.get(userCode)?.remove();
+                audioElements.delete(userCode);
+                audioSenders.delete(userCode);
+
+                // Create new connection
+                const newPc = createPeerConnection(userCode, sendOffer);
+                // Re-send any stored ICE candidates
+                iceCandidates.forEach(candidate => {
+                    socket.emit('ice-candidate', { to: userCode, candidate });
+                });
+            }, reconnectDelay);
+        } else if (state === 'failed') {
+            console.error(`Max reconnect attempts reached for ${userCode}`);
+            // Optionally notify user of persistent failure
+            updateStatus(`Failed to reconnect to ${userCode} after ${maxReconnectAttempts} attempts. See console.og, and about:webrtc for details`);
+        } else if (state === 'connected' || state === 'completed') {
+            reconnectAttempts = 0; // Reset attempts on successful connection
+        }
     };
 
     pc.ontrack = (event) => {
@@ -535,14 +559,6 @@ function setupUIListeners() {
     });
 }
 
-// socket.on('disconnectFromServer', () => {
-//     if (vadAudioContext) vadAudioContext.close();
-//     if (localStream) {
-//         localStream.getTracks().forEach(track => track.stop());
-//     }
-//     updateStatus("disconnected from server")
-
-// })
 function toggleSettings() {
     const settingsMenu = document.getElementById('settings');
     const isOpen = settingsMenu.classList.toggle('open');

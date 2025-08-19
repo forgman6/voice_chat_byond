@@ -1,5 +1,4 @@
 const { sessionIdToUserCode, userCodeToSocketId, socketIdToUserCode} = require('./state');
-const { joinInitialRoom, leaveRoom } = require('./roomManagement');
 const { sendJSON } = require('./byondCommunication');
 
 function createConnectionHandler(byondPort, io) {

@@ -85,10 +85,9 @@ datum/vc/proc/disconnect(userCode, from_byond= FALSE)
         send_json(alist(cmd="disconnect", userCode=userCode))
     vc_clients -= userCode
 
-mob/Logout()
+client.Del()
+    var/userCode = SSVOICE.client_userCode_map[ref(src)]
+    if(userCode)
+        SSVOICE.disconnect(userCode, from_byond= TRUE)
     . = ..()
-    var/userCode = SSVOICE.client_userCode_map[ref(client)]
-    if(!userCode)
-        return
-    SSVOICE.disconnect(userCode, from_byond= TRUE)
     

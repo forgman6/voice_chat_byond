@@ -1,5 +1,6 @@
 # Makefile
-# Change this to point to wherever libbyond.so is stored from your BYOND installation.
+# Change this to point to wherever libbyond.so is stored from your BYOND installation. (keep it at ~/byond/bin for the love of god)
+# Byond api gets downloaded from install.sh
 BYOND_PATH = ~/byond/bin
 
 CC = gcc

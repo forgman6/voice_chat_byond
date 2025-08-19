@@ -1,6 +1,6 @@
 const { sendJSON } = require('./byondCommunication');
 const { sessionIdToUserCode, userCodeToSocketId, socketIdToUserCode } = require('./state');
-const { moveUserToRoom, handleLocationPacket } = require('./roomManagement');
+const { handleLocationPacket } = require('./roomManagement');
 function handleRequest(data, byondPort, io, shutdown_function) {
     try {
         const { cmd } = data;
@@ -32,14 +32,8 @@ function handleRequest(data, byondPort, io, shutdown_function) {
                     return;
                 }
                 const socketId = userCodeToSocketId.get(data['userCode']);
-                if (!socketId) {
-                    const errorMsg = "socketId not found";
-                    console.log(`error: ${errorMsg}`);
-                    sendJSON({ error: errorMsg, data: data }, byondPort);
-                    return;
-                }
                 const socket = io.sockets.sockets.get(socketId)
-                if (!socket) {
+                if (!socketId || !socket) {
                     const errorMsg = "socket not found";
                     console.log(`error: ${errorMsg}`);
                     sendJSON({ error: errorMsg, data: data }, byondPort);
@@ -56,14 +50,8 @@ function handleRequest(data, byondPort, io, shutdown_function) {
                     return;
                 }
                 const socketId = userCodeToSocketId.get(data['userCode']);
-                if (!socketId) {
-                    const errorMsg = "socketId not found";
-                    console.log(`error: ${errorMsg}`);
-                    sendJSON({ error: errorMsg, data: data }, byondPort);
-                    return;
-                }
                 const socket = io.sockets.sockets.get(socketId)
-                if (!socket) {
+                if (!socketId || !socket) {
                     const errorMsg = "socket not found";
                     console.log(`error: ${errorMsg}`);
                     sendJSON({ error: errorMsg, data: data }, byondPort);
@@ -80,12 +68,17 @@ function handleRequest(data, byondPort, io, shutdown_function) {
                     sendJSON({ error: errorMsg, data: data }, byondPort);
                     return;
                 }
+                console.log(`userCode ${data['userCode']} disconnected from byond, cleaning up...`)
+
                 const socketId = userCodeToSocketId.get(data['userCode']);
-                
-                if (socketId) {
-                    const socket = io.sockets.sockets.get(socketId);
-                    socket.disconnect(true);
+                const socket = io.sockets.sockets.get(socketId)
+                if (!socketId || !socket) {
+                    const errorMsg = "socket not found";
+                    console.log(`error: ${errorMsg}`);
+                    sendJSON({ error: errorMsg, data: data }, byondPort);
+                    return;
                 }
+                socket.disconnect(true);
                 userCodeToSocketId.delete(data['userCode']);
                 socketIdToUserCode.delete(socketId);
             }
