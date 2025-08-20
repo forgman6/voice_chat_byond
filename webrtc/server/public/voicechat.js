@@ -5,7 +5,6 @@ const ICE_SERVERS = [
 const DEFAULT_VOLUME_THRESHOLD = 0.01;
 const VAD_DEBOUNCE_TIME = 200; // ms
 const GAIN_SCALE_FACTOR = 50; // Slider 0-100 maps to gain 0-2
-const MAX_DIST_FOR_VOLUME = 10; // Approximate max Euclidean distance ~9.9
 
 // Global State
 let socket;
@@ -158,12 +157,14 @@ function updateSensitivity() {
 }
 
 function updateVolumes() {
-    const masterVolume = document.getElementById('volume_slider').value / 100;
+    const masterVolume = document.getElementById('volume_slider').value ;
     audioElements.forEach((audio, userCode) => {
         const dist = distances.get(userCode) || 0;
-        const baseVolume = Math.max(0, 1 - dist / MAX_DIST_FOR_VOLUME);
-        audio.volume = masterVolume * baseVolume;
-        console.log(`basevolume ${baseVolume}`)
+        const linearBase = Math.max(0, 1 - dist / 10);
+        // const baseVolume = Math.pow(linearBase, 2);
+        const vol = linearBase * masterVolume
+        audio.volume = vol
+        // console.log(`volume ${vol}`)
     });
 }
 
@@ -325,7 +326,7 @@ function createPeerConnection(userCode, sendOffer) {
     audio.autoplay = true;
     if (sinkId) audio.setSinkId(sinkId);
     audio.muted = isDeafened;
-    audio.volume = document.getElementById('volume_slider').value / 100;
+    audio.volume = document.getElementById('volume_slider').value;
     document.body.appendChild(audio);
     audioElements.set(userCode, audio);
 
@@ -523,7 +524,7 @@ function setupUIListeners() {
     });
 
     // Buttons
-    document.getElementById('mic').addEventListener('click', getMic);
+    // document.getElementById('mic').addEventListener('click', getMic);
     document.getElementById('mute_toggle').addEventListener('click', () => toggleMute());
     document.getElementById('deafen_toggle').addEventListener('click', () => toggleDeafen());
     document.getElementById('settings_button').addEventListener('click', toggleSettings);
@@ -539,13 +540,6 @@ function setupUIListeners() {
     document.getElementById('sensitivity_slider').addEventListener('input', updateSensitivity);
     document.getElementById('volume_slider').addEventListener('input', updateVolumes);
 
-    // Prompt and emit on beforeunload
-    window.addEventListener('beforeunload', (event) => {
-        if (socket && socket.connected) {
-            socket.emit('disconnect_page');
-        }
-        event.returnValue = 'Are you sure you want to disconnect?';
-    });
 
     // Cleanup on unload
     window.addEventListener('unload', () => {

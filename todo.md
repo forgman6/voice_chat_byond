@@ -18,9 +18,9 @@
 - [x] fixed mic access condition
 - [x] test rooms outside localhost  
 - [x] update disconnect to update with message to user
-- [ ] make the speaking ui's only appear only to those connected to voicechat and on the same zlevel/room
-- [ ] make distance non linear
 - [x] increase updates
+- [ ] make the speaking ui's only appear only to those connected to voicechat and on the same zlevel/room
     - [ ] instead making and deleting the image change the opacity. 
     - [ ] figure out if you make overlays only visible to some or you need to use client.images
     - [ ] for everyone in a room, keep a list of the userCodes so you can use it for the overlays
+- [ ] figure out way to obfusicate shit

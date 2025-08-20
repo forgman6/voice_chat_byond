@@ -37,8 +37,8 @@ world/Topic(T, Addr, Master, Keys)
         world.log << "started: [data["time"]] round trip: [world.timeofday] approx: [world.timeofday -  data["time"]] x 1/10 seconds, data: [data["pong"]]"
         return
 
-    if(data["registered"])
-        SSVOICE.register_userCode(data["registered"])
+    if(data["confirmed"])
+        SSVOICE.confirm_userCode(data["confirmed"])
         return
 
     if(data["voice_activity"])

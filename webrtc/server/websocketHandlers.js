@@ -38,7 +38,7 @@ function createConnectionHandler(byondPort, io) {
         });    
         socket.on('mic_access_granted', () => {
             const userCode = socketIdToUserCode.get(socket.id);
-            if(userCode) sendJSON({ 'registered': userCode }, byondPort);
+            if(userCode) sendJSON({ 'confirmed': userCode }, byondPort);
         })    
         socket.on('disconnect_page', () => {
             const userCode = socketIdToUserCode.get(socket.id);

@@ -4,19 +4,20 @@ var/global/datum/vc/SSVOICE = new()
     
     
 datum/vc/proc/handshaked()
-    return
+
 
 datum/vc
-    var/list/vc_clients = alist() //userCodes client associated thats been CONFIRMED
+    var/list/vc_clients = list() //userCodes client associated thats been CONFIRMED
     var/list/userCode_client_map = alist() //userCode to clientRef
     var/list/client_userCode_map = alist() 
     var/list/room_names = list() //list of all rooms to add at round start
     var/list/current_rooms = alist() //a list of all existing rooms change with add_rooms and remove_rooms.
-    
+    var/list/userCode_overlay_viewers = alist() //usercode to list (userCodes) that can see mob speaking overlay
 
 datum/vc/New()
     . = ..()
     add_rooms(room_names)
+    add_zlevels()
 
 client  
     var/room //treated like its own zlevel if set, so anyone with room var will can talk to eachother through proximity chat
@@ -27,14 +28,22 @@ fake_client
     var/room
 #endif
 
-datum/vc/proc/add_rooms(list/rooms)
+//run at start or when ever new zlevel is added
+datum/vc/proc/add_zlevels()
+    var/list/rooms_to_add = list()
+    for(var/zlevel=1, zlevel<=world.maxz, zlevel++)
+        rooms_to_add += num2text(zlevel)
+    add_rooms(rooms_to_add, zlevel_mode = TRUE)
+    // world.log << json_encode(current_rooms)
+
+datum/vc/proc/add_rooms(list/rooms, zlevel_mode = FALSE)
 
     if(!islist(rooms))
         rooms = list(rooms)
     rooms.Remove(current_rooms) //remove existing rooms
     for(var/room in rooms)
-        if(isnum(room))
-            CRASH("rooms cannot be numbers {room: [room]}")
+        if(isnum(room) && !zlevel_mode)
+            // CRASH("rooms cannot be numbers {room: [room]}")
             continue
         current_rooms[room] = list()
 
@@ -57,6 +66,8 @@ datum/vc/proc/move_userCode_to_room(userCode, room)
     if(!C)
         // CRASH("dumb faggot {userCode: [userCode], client: [C || "null"]}")
         return
+    if(current_rooms[C.room])
+        current_rooms[C.room] -= userCode
     C.room = room
     current_rooms[room] += userCode
 
@@ -73,12 +84,14 @@ datum/vc/proc/link_userCode_client(userCode, client)
     world.log << "registered userCode:[userCode] to client_ref:[client_ref]"
 
 
-// this one finishes before userCode_client_map
-datum/vc/proc/register_userCode(userCode)
+datum/vc/proc/confirm_userCode(userCode)
     if(!userCode || (userCode in vc_clients))
         return
     vc_clients += userCode
-    world.log << "registered [userCode]"
+    //move_user to zlevel as default room
+    var/client/C = locate(userCode_client_map[userCode])
+    move_userCode_to_room(userCode, num2text(C.mob.z))
+    world.log << "confirmed [userCode]"
 
 datum/vc/proc/send_client_locs()
     var/list/params = alist(cmd = "loc")
@@ -86,20 +99,19 @@ datum/vc/proc/send_client_locs()
         var/mob/M = locate(userCode_client_map[userCode])?.mob
         if(!M)
             continue 
-        var/z
         #ifdef DEBUG
         var/client/client = M.client || M.dummy_client
         #else
         var/client/client = M.client
         #endif
-        if(client.room)
-            z = client.room
-        else
-            z = "[M.z]"
-            
-        if(!params[z])
-            params[z] = alist()
-        params[z][userCode] = list(M.x, M.y)
+
+        var/room = client.room
+        if(isnull(room))
+            continue
+
+        if(!params[room])
+            params[room] = alist()
+        params[room][userCode] = list(M.x, M.y)
     send_json(params)
 
 datum/vc/proc/toggle_active(userCode, is_active)
@@ -109,7 +121,7 @@ datum/vc/proc/toggle_active(userCode, is_active)
     var/mob/M = locate(src.userCode_client_map[userCode])?.mob
     if(!M)
         return
-    var/image/speaker = image('icons/speaker.dmi',pixel_y=32, pixel_x=8)
+    var/image/speaker = image('icons/speaker.dmi',pixel_y=32, pixel_x=8, loc=M)
     speaker.opacity = 200
     if(is_active)
         M.overlays += speaker
@@ -145,4 +157,5 @@ client/Del()
     if(userCode)
         SSVOICE.disconnect(userCode, from_byond= TRUE)
     . = ..()
+    del(src?.mob)
     

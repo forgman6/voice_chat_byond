@@ -18,8 +18,11 @@ mob/verb/join_vc()
     var/userCode = generate_userCode(client)
     while(userCode in SSVOICE.userCode_client_map) // ensure unique, should almost never run
         userCode = generate_userCode(client)
+    #ifndef DEBUG
     src << link("https://[world.internet_address]:[NODEPORT]?sessionId=[sessionId]")
-
+    #else
+    src << link("https://localhost:[NODEPORT]?sessionId=[sessionId]")
+    #endif
     var/list/paramstuff = alist(cmd="register")
     paramstuff["userCode"]=userCode
     paramstuff["sessionId"]=sessionId
@@ -30,19 +33,23 @@ mob/verb/join_vc()
 mob/verb/make_dummy_client()
     var/global/number = 1
     var/list/paramstuff = alist(cmd="register")
-    var/id = "dummy_[number]"
+    var/sessionId = "dummy_[number]"
     number ++
-    src << link("https://[world.internet_address]:[NODEPORT]?sessionId=[id]")
-    paramstuff["userCode"] = "[id]"
-    paramstuff["sessionId"] = "[id]"
+    #ifndef DEBUG
+    src << link("https://[world.internet_address]:[NODEPORT]?sessionId=[sessionId]")
+    #else
+    src << link("https://localhost:[NODEPORT]?sessionId=[sessionId]")
+    #endif
+    paramstuff["userCode"] = "[sessionId]"
+    paramstuff["sessionId"] = "[sessionId]"
     send_json(paramstuff)
     var/mob/dummy_mob = new(loc)
-    dummy_mob.tag = id
-    dummy_mob.name = id
+    dummy_mob.tag = sessionId
+    dummy_mob.name = sessionId
     var/fake_client/C = new
     C.mob = dummy_mob
     dummy_mob.dummy_client = C
-    SSVOICE.link_userCode_client(id, C)
+    SSVOICE.link_userCode_client(sessionId, C)
 
 #endif
 
