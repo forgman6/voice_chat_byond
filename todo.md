@@ -16,9 +16,11 @@
 - [x] add room var to client that gets treated like zlevel.
 - [x] clean up add dummy client so it only exist when in debug mode
 - [x] fixed mic access condition
+- [x] test rooms outside localhost  
+- [x] update disconnect to update with message to user
 - [ ] make the speaking ui's only appear only to those connected to voicechat and on the same zlevel/room
+- [ ] make distance non linear
+- [x] increase updates
     - [ ] instead making and deleting the image change the opacity. 
     - [ ] figure out if you make overlays only visible to some or you need to use client.images
     - [ ] for everyone in a room, keep a list of the userCodes so you can use it for the overlays
-- [ ] test rooms outside localhost  
-- [ ] update disconnect to update with message to user

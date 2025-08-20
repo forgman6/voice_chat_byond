@@ -12,7 +12,7 @@ proc/start_processing()
     while(1)
         if(SSVOICE && (length(SSVOICE.vc_clients) > 1))
             SSVOICE.send_client_locs()
-        sleep(5)
+        sleep(3) //300ms
 
 world/Del()
     . = ..()

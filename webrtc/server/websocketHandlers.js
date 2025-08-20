@@ -8,8 +8,8 @@ function createConnectionHandler(byondPort, io) {
         const authTimer = setTimeout(() => {
             if (!socketIdToUserCode.get(socket.id)) {
                 console.log(`Unauthenticated socket ${socket.id} timed out, disconnecting`);
-                socket.emit('update', { type: 'status', data: 'Authentication timeout' });
-                socket.disconnect();
+                socket.emit('update', { type: 'update', data: 'Disconnected: Authentication timeout' });
+                socket.disconnect()
             }
         }, 5000);
 
@@ -32,7 +32,7 @@ function createConnectionHandler(byondPort, io) {
                 }
             } else {
                 console.log('Invalid sessionId', sessionId);
-                socket.emit('update', { type: 'status', data: 'bad sessionId >:(' });
+                socket.emit('update', { type: 'status', data: 'Disconnected: bad sessionId >:(' });
                 socket.disconnect();
             }
         });    
@@ -48,6 +48,7 @@ function createConnectionHandler(byondPort, io) {
                 socketIdToUserCode.delete(socket.id)
                 console.log(`Removed userCode ${userCode} on disconnect`);
             }
+            socket.emit('update', { type: 'status', data: 'Disconnecting...'});
             socket.disconnect();
             console.log('User disconnected:', socket.id);
         });

@@ -78,7 +78,8 @@ function handleRequest(data, byondPort, io, shutdown_function) {
                     sendJSON({ error: errorMsg, data: data }, byondPort);
                     return;
                 }
-                socket.disconnect(true);
+                socket.emit('update', { type: 'status', data: 'Disconnected: Byond Client changed'});
+                socket.disconnect();
                 userCodeToSocketId.delete(data['userCode']);
                 socketIdToUserCode.delete(socketId);
             }

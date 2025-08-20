@@ -33,6 +33,7 @@ function disconnectAllClients(io) {
     io.emit('server-shutdown');
     setTimeout(() => {
         io.sockets.sockets.forEach((socket) => {
+            socket.emit('update', { type: 'update', data: 'Disconnected: Disconnecting all clients' });
             socket.disconnect(true);
         });
     }, 2000);

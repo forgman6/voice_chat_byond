@@ -488,7 +488,6 @@ function setupSocketHandlers() {
         console.log(`Socket disconnected: ${reason}`);
         cleanupConnections();
         toggleRoomStatus(false);
-        updateStatus("disconnected from server")
     });
 
     socket.on('mute_mic', () => {
