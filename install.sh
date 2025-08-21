@@ -17,7 +17,6 @@ sudo apt install -y libc6:i386 libstdc++6:i386 libgcc1:i386 zlib1g:i386 zip gcc-
 
 echo "Installing BYOND version ${BYOND_BUILD}..."
 cd ..
-# lummoxJR is a faggot and blocks datacenter wget
 wget "$BYOND_URL" 
 unzip "$BYOND_ZIP" && rm "$BYOND_ZIP"
 cd byond && sudo make install
