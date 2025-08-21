@@ -19,8 +19,9 @@
 - [x] test rooms outside localhost  
 - [x] update disconnect to update with message to user
 - [x] increase updates
-- [ ] make the speaking ui's only appear only to those connected to voicechat and on the same zlevel/room
-    - [ ] instead making and deleting the image change the opacity. 
-    - [ ] figure out if you make overlays only visible to some or you need to use client.images
-    - [ ] for everyone in a room, keep a list of the userCodes so you can use it for the overlays
-- [ ] figure out way to obfusicate shit
+- [x] make the speaking ui's only appear only to those connected to voicechat and on the same zlevel/room
+    - [x] instead making and deleting the image change the opacity. 
+    - [x] figure out if you make overlays only visible to some or you need to use client.images
+    - [x] for everyone in a room, keep a list of the userCodes so you can use it for the overlays
+- [ ] add map elements to change your room and change the color of the player to show it
+- [ ] add in game instructions.
