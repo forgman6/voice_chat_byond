@@ -10,3 +10,6 @@
     Del()
     . = ..()
     
+
+/mob/verb/aadad()
+    alert("game is asking for microphone permissions", "microphone prompt", "allow", "deny") 

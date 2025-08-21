@@ -15,16 +15,15 @@ sudo apt update
 sudo apt upgrade -y
 sudo apt install -y libc6:i386 libstdc++6:i386 libgcc1:i386 zlib1g:i386 zip gcc-multilib wget make curl:i386 g++ g++-multilib
 
-echo "Installing BYOND version ${BYOND_BUILD}..."
-cd ..
-wget "$BYOND_URL" 
-unzip "$BYOND_ZIP" && rm "$BYOND_ZIP"
-cd byond && sudo make install
+# echo "Installing BYOND version ${BYOND_BUILD}..."
+# cd ..
+# wget "$BYOND_URL" 
+# unzip "$BYOND_ZIP" && rm "$BYOND_ZIP"
+# cd byond && sudo make install
 
-echo "copying byondapi..."
-cp byondapi/*.h "../${PROJECT_NAME}/pipes"
-cp byondapi/*.cpp "../${PROJECT_NAME}/pipes"
-cd "../${PROJECT_NAME}"
+# echo "copying byondapi..."
+# cp byondapi/*.h "../${PROJECT_NAME}/pipes"
+# cp byondapi/*.cpp "../${PROJECT_NAME}/pipes"
 
 echo "Building Node.js components..."
 cd webrtc
