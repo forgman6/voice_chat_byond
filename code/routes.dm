@@ -34,7 +34,7 @@ world/Topic(T, Addr, Master, Keys)
         return
 
     if(data["pong"])
-        world.log << "started: [data["time"]] round trip: [world.timeofday] approx: [world.timeofday -  data["time"]] x 1/10 seconds, data: [data["pong"]]"
+        world << "started: [data["time"]] round trip: [world.timeofday] approx: [world.timeofday -  data["time"]] x 1/10 seconds, data: [data["pong"]]"
         return
 
     if(data["confirmed"])
