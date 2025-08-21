@@ -57,7 +57,7 @@ function createConnectionHandler(byondPort, io) {
             const { to, offer } = data;
             const targetSocketId = userCodeToSocketId.get(to);
             const socket_sending = io.sockets.sockets.get(targetSocketId)
-            if (targetSocketId && socket) {
+            if (targetSocketId && socket_sending) {
                 socket_sending.emit('offer', { from: socket.userCode, offer });
             }
         });
@@ -66,7 +66,7 @@ function createConnectionHandler(byondPort, io) {
             const { to, answer } = data;
             const targetSocketId = userCodeToSocketId.get(to);
             const socket_sending = io.sockets.sockets.get(targetSocketId)
-            if (targetSocketId && socket) {
+            if (targetSocketId && socket_sending) {
                 socket_sending.emit('answer', { from: socket.userCode, answer });
             }
         });
@@ -75,7 +75,7 @@ function createConnectionHandler(byondPort, io) {
             const { to, candidate } = data;
             const targetSocketId = userCodeToSocketId.get(to);
             const socket_sending = io.sockets.sockets.get(targetSocketId)
-            if (targetSocketId && socket) {
+            if (targetSocketId && socket_sending) {
                 socket_sending.emit('ice-candidate', { from: socket.userCode, candidate });
             }
         });

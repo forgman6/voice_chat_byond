@@ -80,34 +80,34 @@ datum/vc/proc/move_userCode_to_room(userCode, room)
         // CRASH("dumb faggot {userCode: [userCode], client: [C || "null"]}")
         return
     if(current_rooms[C.room])
-        remove_overlay_from_room(userCode, C.room)
+        // remove_overlay_from_room(userCode, C.room)
         current_rooms[C.room] -= userCode
     C.room = room
     current_rooms[room] += userCode
-    add_overlay_to_room(userCode, room)
+    // add_overlay_to_room(userCode, room)
 
 
-datum/vc/proc/add_overlay_to_room(own_userCode, room)
-    if(!own_userCode || !room || !current_rooms.Find(room))
-        return
-    var/client/own_client = locate(userCode_client_map[own_userCode])
-    if(!own_client)
-        return
-    for(var/userCode in current_rooms[room])
-        var/client/C = locate(userCode_client_map[userCode])
-        C.images += own_client.speaker_icon
+// datum/vc/proc/add_overlay_to_room(own_userCode, room)
+//     if(!own_userCode || !room || !current_rooms.Find(room))
+//         return
+//     var/client/own_client = locate(userCode_client_map[own_userCode])
+//     if(!own_client)
+//         return
+//     for(var/userCode in current_rooms[room])
+//         var/client/C = locate(userCode_client_map[userCode])
+//         C.images += own_client.speaker_icon
 
-datum/vc/proc/remove_overlay_from_room(own_userCode, room)
-    if(!own_userCode || !room || !current_rooms.Find(room))
-        CRASH("bad params {own_userCode: [own_userCode ], room: [room || "null"], found_room: [current_rooms.Find(room) || "null"]}")
-        return
-    var/client/own_client = locate(userCode_client_map[own_userCode])
-    if(!own_client)
-        CRASH("no client {own_client [own_client || "null"]}")
-        return
-    for(var/userCode in current_rooms[room])
-        var/client/C = locate(userCode_client_map[userCode])
-        C.images -= own_client.speaker_icon
+// datum/vc/proc/remove_overlay_from_room(own_userCode, room)
+//     if(!own_userCode || !room || !current_rooms.Find(room))
+//         CRASH("bad params {own_userCode: [own_userCode ], room: [room || "null"], found_room: [current_rooms.Find(room) || "null"]}")
+//         return
+//     var/client/own_client = locate(userCode_client_map[own_userCode])
+//     if(!own_client)
+//         CRASH("no client {own_client [own_client || "null"]}")
+//         return
+//     for(var/userCode in current_rooms[room])
+//         var/client/C = locate(userCode_client_map[userCode])
+//         C.images -= own_client.speaker_icon
 
 
 datum/vc/proc/link_userCode_client(userCode, client)
@@ -126,10 +126,6 @@ datum/vc/proc/confirm_userCode(userCode)
     //move_user to zlevel as default room
     var/client/C = locate(userCode_client_map[userCode])
     var/mob/M = C.mob
-    var/image/speaker = image('icons/speaker.dmi',pixel_y=32, pixel_x=8, loc=M)
-    speaker.alpha = 220
-    speaker.mouse_opacity = FALSE
-    C.speaker_icon = speaker
     move_userCode_to_room(userCode, num2text(M.z))
     world.log << "confirmed [userCode]"
 
@@ -155,14 +151,13 @@ datum/vc/proc/toggle_active(userCode, is_active)
         return
     var/client/C = locate(userCode_client_map[userCode])
     var/atom/M = C.mob
-
-    if(C.speaker_icon.loc != M)
-        C.speaker_icon.loc = M   
-        
+    var/image/speaker = image('icons/speaker.dmi', pixel_y=32, pixel_x=8)
     if(is_active)
-        C.speaker_icon.alpha = 220
+        M.overlays += speaker
     else
-        C.speaker_icon.alpha = 0
+        M.overlays -= speaker
+
+
 
 datum/vc/proc/mute_mic(mob_ref, deafen=FALSE)
     if(!mob_ref)

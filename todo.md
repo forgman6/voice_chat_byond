@@ -23,5 +23,7 @@
     - [x] instead making and deleting the image change the opacity. 
     - [x] figure out if you make overlays only visible to some or you need to use client.images
     - [x] for everyone in a room, keep a list of the userCodes so you can use it for the overlays
-- [ ] add map elements to change your room and change the color of the player to show it
-- [ ] add in game instructions.
+- [x] add map elements to change your room and change the color of the player to show it
+- [x] add in game instructions.
+- [ ] add mute mob
+
