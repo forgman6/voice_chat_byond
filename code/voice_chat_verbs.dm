@@ -51,13 +51,7 @@ mob/verb/make_dummy_client()
     dummy_mob.dummy_client = C
     SSVOICE.link_userCode_client(sessionId, C)
 
-#endif
 
-mob/verb/mute_self()
-    SSVOICE.mute_mic(ref(client))
-
-mob/verb/deafen()
-    SSVOICE.mute_mic(ref(client), deafen=TRUE)
 
 mob/verb/send_locs()
     SSVOICE.send_client_locs()
@@ -67,3 +61,10 @@ mob/verb/change_room(userCode in SSVOICE.vc_clients, room in SSVOICE.current_roo
 
 mob/verb/add_room(room as text)
     SSVOICE.add_rooms(room)
+#endif
+
+mob/verb/mute_self()
+    SSVOICE.mute_mic(ref(client))
+
+mob/verb/deafen()
+    SSVOICE.mute_mic(ref(client), deafen=TRUE)

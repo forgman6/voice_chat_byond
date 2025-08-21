@@ -13,7 +13,7 @@ datum/vc
     var/list/userCode_client_map = alist()
     var/list/client_userCode_map = alist() 
     //list of all rooms to add at round start
-    var/list/rooms_to_add = list() 
+    var/list/rooms_to_add = list("blue", "red", "green") 
     //a list all currnet rooms 
     //change with add_rooms and remove_rooms.
     var/list/current_rooms = alist() 

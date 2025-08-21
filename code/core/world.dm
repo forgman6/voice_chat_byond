@@ -16,6 +16,6 @@
     icon = 'Icons.dmi'
     icon_state = "floor"
 
-/mob/Login()
-    x = 8; y = 8
-    tag = "player"
+// /mob/Login()
+//     x = 8; y = 8
+//     tag = "player"
