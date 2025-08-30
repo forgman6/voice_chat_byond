@@ -17,7 +17,8 @@
     #ifdef TESTING
     C << link("https://localhost:[node_port]?sessionId=[sessionId]")
     #else
-    C << link("https://[world.internet_address]:[node_port]?sessionId=[sessionId]")
+    var/address = src.domain || world.internet_address
+    C << link("https://[address]:[node_port]?sessionId=[sessionId]")
     #endif
     send_json(alist(
         cmd = "register",
