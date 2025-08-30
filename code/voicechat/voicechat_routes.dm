@@ -2,7 +2,7 @@
 // #define LOG_TRAFFIC
 
 
-/datum/voicechat/proc/test_library()
+/datum/controller/subsystem/voicechat/proc/test_library()
     var/text = "hello word"
     var/out = call_ext(src.lib_path, "byond:Echo")(text)
     var/confirmed = (out == text)
@@ -19,14 +19,14 @@
     return .
 
     
-/datum/voicechat/proc/send_json(list/data)
+/datum/controller/subsystem/voicechat/proc/send_json(list/data)
     var/json = json_encode_sanitize(data)
     #ifdef LOG_TRAFFIC
     world.log << "BYOND: [json]"
     #endif
     call_ext(src.lib_path, "byond:SendJSON")(json)
 
-/datum/voicechat/proc/handle_topic(T, addr)
+/datum/controller/subsystem/voicechat/proc/handle_topic(T, addr)
     if(addr != "127.0.0.1")
         return
 

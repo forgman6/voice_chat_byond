@@ -1,5 +1,5 @@
 // Connects a client to voice chat via an external browser
-/datum/voicechat/proc/join_vc(client/C)
+/datum/controller/subsystem/voicechat/proc/join_vc(client/C)
     if(!C)
         return
     // Disconnect existing session if present
@@ -31,7 +31,7 @@
     // Confirmation handled in confirm_userCode
 
 
-/datum/voicechat/proc/post_confirm(userCode)
+/datum/controller/subsystem/voicechat/proc/post_confirm(userCode)
     var/client/C = locate(userCode_client_map[userCode])
     if(!C || !C.mob)
         disconnect(userCode, from_byond = TRUE)
@@ -41,7 +41,7 @@
     room_update(M)
 
 
-/datum/voicechat/proc/toggle_active(userCode, is_active)
+/datum/controller/subsystem/voicechat/proc/toggle_active(userCode, is_active)
     if(!userCode || isnull(is_active))
         return
     var/client/C = locate(userCode_client_map[userCode])
@@ -75,7 +75,7 @@
         userCodes_active -= userCode
         M.overlays -= speaker
 
-/datum/voicechat/proc/mute_mic(client/C, deafen = FALSE)
+/datum/controller/subsystem/voicechat/proc/mute_mic(client/C, deafen = FALSE)
     if(!C)
         return
     var/userCode = client_userCode_map[ref(C)]

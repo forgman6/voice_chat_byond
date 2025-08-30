@@ -17,4 +17,5 @@ world/Topic(T, Addr, Master, Keys)
     . = ..()
     if(SSvoicechat && Addr == "127.0.0.1")
         SSvoicechat.handle_topic(T, Addr)
-var/global/datum/voicechat/SSvoicechat = new()
+
+var/global/datum/controller/subsystem/voicechat/SSvoicechat = new()

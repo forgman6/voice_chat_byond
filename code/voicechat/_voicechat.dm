@@ -1,4 +1,4 @@
-#define TESTING //uncomment to allow more verbs, and creation of fake players
+// #define TESTING //uncomment to allow more verbs, and creation of fake players
 
 #ifdef TESTING
 /fake_client
@@ -7,8 +7,8 @@
     var/list/images = list()
 #endif
 
-        
-/datum/voicechat
+//controller isnt defined, the path is used to make adding this easier
+/datum/controller/subsystem/voicechat
     var/name = "Voice Chat"
     var/wait = 3 //300 ms
     // flags = SS_KEEP_TIMING
@@ -52,7 +52,7 @@
     // var/const/lib_path = "voicechat/pipes/"
     var/const/lib_path = "pipes/byondsocket.so"
     
-/datum/voicechat/New()
+/datum/controller/subsystem/voicechat/New()
     . = ..()
     //mock proc Initialize
     var/init_status = Initialize()
@@ -62,12 +62,12 @@
     //mock firing setup
     spawn() start_firing()
 
-/datum/voicechat/proc/start_firing()
+/datum/controller/subsystem/voicechat/proc/start_firing()
     while(TRUE)
         sleep(wait)
         fire()
 
-/datum/voicechat/proc/Initialize()
+/datum/controller/subsystem/voicechat/proc/Initialize()
     if(!test_library())
         return SS_INIT_FAILURE
     add_rooms(rooms_to_add)
@@ -75,24 +75,24 @@
     return SS_INIT_SUCCESS
 
 
-/datum/voicechat/proc/start_node()
+/datum/controller/subsystem/voicechat/proc/start_node()
     // byond port used for topic calls
     var/byond_port = world.port
     spawn() shell("node [src.node_path] --node-port=[src.node_port] --byond-port=[byond_port]")
 
-/datum/voicechat/Del()
+/datum/controller/subsystem/voicechat/Del()
     send_json(alist(cmd= "stop_node"))
     . = ..()
     
 //mock fire proc
-/datum/voicechat/proc/fire()
+/datum/controller/subsystem/voicechat/proc/fire()
     send_locations()
 
-/datum/voicechat/proc/handshaked()
+/datum/controller/subsystem/voicechat/proc/handshaked()
     handshaked = TRUE
     return
 
-/datum/voicechat/proc/add_rooms(list/rooms, zlevel_mode = FALSE)
+/datum/controller/subsystem/voicechat/proc/add_rooms(list/rooms, zlevel_mode = FALSE)
     if(!islist(rooms))
         rooms = list(rooms)
     rooms.Remove(current_rooms) //remove existing rooms
@@ -102,7 +102,7 @@
             continue
         current_rooms[room] = list()
 
-/datum/voicechat/proc/remove_rooms(list/rooms)
+/datum/controller/subsystem/voicechat/proc/remove_rooms(list/rooms)
     if(!islist(rooms))
         rooms = list(rooms)
     rooms &= current_rooms //remove nonexistant rooms
@@ -111,7 +111,7 @@
             userCode_room_map[userCode] = null
         current_rooms.Remove(room)
 
-/datum/voicechat/proc/move_userCode_to_room(userCode, room)
+/datum/controller/subsystem/voicechat/proc/move_userCode_to_room(userCode, room)
     if(!room || !current_rooms.Find(room))
         return
 
@@ -123,7 +123,7 @@
     current_rooms[room] += userCode
 
 
-/datum/voicechat/proc/link_userCode_client(userCode, client)
+/datum/controller/subsystem/voicechat/proc/link_userCode_client(userCode, client)
     if(!client|| !userCode)
         // CRASH("{userCode: [userCode || "null"], client: [client  || "null"]}")
         return
@@ -134,7 +134,7 @@
 
 
 // Confirms userCode when browser and mic access are granted
-/datum/voicechat/proc/confirm_userCode(userCode)
+/datum/controller/subsystem/voicechat/proc/confirm_userCode(userCode)
     if(!userCode || (userCode in vc_clients))
         return
     var/client_ref = userCode_client_map[userCode]
@@ -147,7 +147,7 @@
     post_confirm(userCode)
 
 // faster the better
-/datum/voicechat/proc/send_locations()
+/datum/controller/subsystem/voicechat/proc/send_locations()
     var/list/params = alist(cmd = "loc")
     for(var/userCode in vc_clients)
         var/client/C = locate(userCode_client_map[userCode])
@@ -168,7 +168,7 @@
 
 
 // Disconnects a user from voice chat
-/datum/voicechat/proc/disconnect(userCode, from_byond = FALSE)
+/datum/controller/subsystem/voicechat/proc/disconnect(userCode, from_byond = FALSE)
     if(!userCode)
         return
 
@@ -188,7 +188,7 @@
         send_json(alist(cmd= "disconnect", userCode= userCode))
 
 
-/datum/voicechat/proc/generate_userCode(client/C)
+/datum/controller/subsystem/voicechat/proc/generate_userCode(client/C)
     if(!C)
         // CRASH("no client or wrong type")
         return
@@ -198,11 +198,11 @@
         . = copytext(md5("[C.computer_id][C.address][rand()]"),-4)
     return .
 
-/datum/voicechat/proc/room_update(mob/source)
+/datum/controller/subsystem/voicechat/proc/room_update(mob/source)
     return
 
 // shit pattern
-// /datum/voicechat/proc/room_update(mob/source)
+// /datum/controller/subsystem/voicechat/proc/room_update(mob/source)
 // 	var/client/C = source.client
 // 	var/userCode = client_userCode_map[ref(C)]
 // 	if(!C || !userCode)
@@ -219,7 +219,7 @@
 // 		move_userCode_to_room(userCode, room)
 
 
-/datum/voicechat/proc/ping_node()
+/datum/controller/subsystem/voicechat/proc/ping_node()
     var/list/data = alist(cmd = "ping", message = "Hello from BYOND!", time=world.timeofday)
     send_json(data)
 
