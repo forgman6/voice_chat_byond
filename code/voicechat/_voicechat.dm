@@ -52,7 +52,7 @@
     // var/const/lib_path = "voicechat/pipes/"
     var/const/lib_path = "pipes/byondsocket.so"
     //if you have a domain, put it here.
-	var/const/domain
+    var/const/domain
 
     
 //  --lifecycle--
