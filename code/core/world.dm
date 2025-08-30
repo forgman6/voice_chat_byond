@@ -7,15 +7,9 @@
     
 /mob
     step_size = 32
-    icon = 'Icons.dmi'
+    icon = 'icons/Icons.dmi'
     icon_state = "m"
-    #ifdef DEBUG
     var/dummy_client
-    #endif
 /turf
-    icon = 'Icons.dmi'
+    icon = 'icons/Icons.dmi'
     icon_state = "floor"
-
-// /mob/Login()
-//     x = 8; y = 8
-//     tag = "player"

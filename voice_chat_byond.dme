@@ -10,21 +10,21 @@
 // END_FILE_DIR
 
 // BEGIN_PREFERENCES
-// #define DEBUG
-// #define LOG_TRAFFIC
+#define DEBUG
 // END_PREFERENCES
 
 // BEGIN_INCLUDE
-#include "code\login.dm"
+#include "code\mainshit.dm"
+#include "code\mock_subsystem_defines.dm"
 #include "code\room_turfs.dm"
-#include "code\routes.dm"
 #include "code\tests.dm"
-#include "code\voice_chat_server.dm"
-#include "code\voice_chat_verbs.dm"
-#include "code\voice_subsubsystem.dm"
 #include "code\core\auxtools.dm"
 #include "code\core\world.dm"
 #include "code\core\skin.dmf"
 #include "code\core\Map.dmm"
+#include "code\voicechat\_voicechat.dm"
+#include "code\voicechat\voicechat_clientstuff.dm"
+#include "code\voicechat\voicechat_routes.dm"
+#include "code\voicechat\voicechat_verbs.dm"
 // END_INCLUDE
 
