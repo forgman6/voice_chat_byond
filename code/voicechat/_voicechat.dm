@@ -1,5 +1,5 @@
 // #define TESTING //uncomment to allow more verbs, and creation of fake players
-
+// #define LOG_TRAFFIC //uncomment to show byond and node traffic
 #ifdef TESTING
 /fake_client
     var/mob/mob
@@ -47,15 +47,13 @@
     var/const/node_port = 3000
     //node server path
     // var/const/node_path = "voicechat/node/server/main.js"
-    var/const/node_path = "webrtc/server/main.js"
+    var/const/node_path = "voicechat/node/server/main.js"
     //library path
     // var/const/lib_path = "voicechat/pipes/"
-    var/const/lib_path = "pipes/byondsocket.so"
+    var/const/lib_path = "voicechat/pipes/byondsocket.so"
     //if you have a domain, put it here.
     var/const/domain
 
-    
-//  --lifecycle--
 
 /datum/controller/subsystem/voicechat/New()
     . = ..()

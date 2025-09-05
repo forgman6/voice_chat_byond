@@ -1,6 +1,6 @@
 /mob/verb/tests()
     world.log << "calling lib..."
-    world.log << call_ext("pipes/byondsocket", "byond:Echo")("calling lib worked")
+    world.log << call_ext(SSvoicechat.lib_path, "byond:Echo")("calling lib worked")
     world.log << "send bad JSON..."
     var/params = alist(1="bad_key")
     SSvoicechat.send_json(params)

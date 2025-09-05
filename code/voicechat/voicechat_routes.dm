@@ -1,5 +1,4 @@
-//uncomment to show traffic
-// #define LOG_TRAFFIC
+
 
 
 /datum/controller/subsystem/voicechat/proc/test_library()

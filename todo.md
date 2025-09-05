@@ -1,3 +1,5 @@
+# TODO
+
 - [x] clean up voicechat.js
 - [x] port tools
 - [x] byond remove rooms
@@ -20,10 +22,16 @@
 - [x] update disconnect to update with message to user
 - [x] increase updates
 - [x] make the speaking ui's only appear only to those connected to voicechat and on the same zlevel/room
-    - [x] instead making and deleting the image change the opacity. 
-    - [x] figure out if you make overlays only visible to some or you need to use client.images
-    - [x] for everyone in a room, keep a list of the userCodes so you can use it for the overlays
+    1. [x] instead making and deleting the image change the opacity. 
+    2. [x] figure out if you make overlays only visible to some or you need to use client.images
+    3. [x] for everyone in a room, keep a list of the userCodes so you can use it for the overlays
 - [x] add map elements to change your room and change the color of the player to show it
 - [x] add in game instructions.
-- [ ] add mute mob
-
+- [x] add mute mob client side
+- [ ] add mute mob byond side
+- [x] restructure files
+- [x] update node to open named socket inside root
+- [x] update node to delete existing socket if exist inside root
+- [x] fix pipe lib to work better with tgs
+- [ ] fix that one weird glitch where some people cant access mic for DOM
+- [x] fix up byond install

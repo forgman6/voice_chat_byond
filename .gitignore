@@ -3,11 +3,6 @@
 *.dmb
 *.int
 *.lk
-*.zip
-*.backup
-*.log
-*.pid
-
 
 #visual studio
 *.tlog
@@ -20,11 +15,7 @@ node_modules/
 npm-debug.log
 package-lock.json
 
-# General
-.DS_Store
-*.swp
-*.bak
-*.tmp
+# pipelib specific
+*.o
+*.so
 
-# my own startup shit
-cmd.txt
