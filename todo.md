@@ -28,12 +28,12 @@
 - [x] add map elements to change your room and change the color of the player to show it
 - [x] add in game instructions.
 - [x] add mute mob client side
-- [ ] add mute mob byond side
 - [x] restructure files
 - [x] update node to open named socket inside root
 - [x] update node to delete existing socket if exist inside root
 - [x] fix pipe lib to work better with tgs
-- [ ] readd try mic access again
 - [x] fix up byond install
 - [x] make alternative for when link() dont work
-- [ ] see if its possible to make and enforce listen only connections for people who cant speak.
+- [x] readd try mic access again
+- [ ] add mute mob byond side
+- [ ] see if its possible to make and enforce listen only connections for people who cant speak ingame.
