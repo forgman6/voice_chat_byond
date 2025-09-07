@@ -1,7 +1,8 @@
 /mob/verb/join_vc()
 	src << browse({"
 	<html>
-	<h2>Experimental Proximity Chat</h2>
+	<h2>Experimental Proximity Chat)</h2>
+	<p>if the browser fails to open try "join vc external" instead</p>
 	<p>This command should open an external broswer.<br>
 	1. ignore the bad cert and continue onto the site.<br>
 	2. When prompted, allow mic perms and then you should be set up.<br>
@@ -24,6 +25,9 @@
 	if(SSvoicechat)
 		SSvoicechat.join_vc(client)
 
+/mob/verb/join_vc_external()
+	if(SSvoicechat)
+		SSvoicechat.join_vc(client, show_link_only=TRUE)
 
 /mob/verb/mute_self()
 	if(SSvoicechat)

@@ -2,18 +2,19 @@
 
 * [about wsl](https://learn.microsoft.com/en-us/windows/wsl/install)
 
-```bash
+    ```bash
     wsl --install debian
-```
+    ```
 
-* change **spaceman** to your **windows username**
+* run from wsl, if using github desktop, folder should be in right place. if not correct.
 
     ```bash
     cd ~ && \
+    windows_user=$(cmd.exe /c echo %USERNAME% | tr -d '\r') && \
     sudo apt install rsync dos2unix && \
     sudo rm -rf ~/voice_chat_byond && \
-    cd /mnt/c/Users/spaceman/Documents/GitHub/voice_chat_byond && \
-    rsync -av --progress --exclude='/.git' --filter="dir-merge,- .gitignore" ./ /home/a/voice_chat_byond/ &&\
+    cd "/mnt/c/Users/$windows_user/Documents/GitHub/voice_chat_byond" && \
+    rsync -av --progress --exclude='/.git' --filter="dir-merge,- .gitignore" ./ ~/voice_chat_byond/ &&\
     cd ~/voice_chat_byond && \
     dos2unix install.sh && \
     bash install.sh && \

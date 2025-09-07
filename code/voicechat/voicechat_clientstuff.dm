@@ -1,5 +1,5 @@
 // Connects a client to voice chat via an external browser
-/datum/controller/subsystem/voicechat/proc/join_vc(client/C)
+/datum/controller/subsystem/voicechat/proc/join_vc(client/C, show_link_only=FALSE)
     if(!C)
         return
     // Disconnect existing session if present
@@ -13,13 +13,24 @@
     if(!userCode)
         return
 
-    // Open external browser with voice chat link
-    #ifdef TESTING
-    C << link("https://localhost:[node_port]?sessionId=[sessionId]")
-    #else
+    // Open external browser with voice chat link 
     var/address = src.domain || world.internet_address
-    C << link("https://[address]:[node_port]?sessionId=[sessionId]")
+    var/web_link = "https://[address]:[node_port]?sessionId=[sessionId]"
+    #ifdef TESTING
+    web_link = "https://localhost:[node_port]?sessionId=[sessionId]"
     #endif
+    if(!show_link_only)
+        C << link(web_link)
+    else
+        C << browse({"
+        <html>
+            <body>
+                <h3>[web_link]</h3>
+                <p>copy and paste the link into your web browser of choice, or scan the qr code.</p>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent([web_link])}&size=150x150">
+            </body>
+        </html>"}, "window=voicechat_help")
+
     send_json(alist(
         cmd = "register",
         userCode = userCode,

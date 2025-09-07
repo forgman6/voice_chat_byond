@@ -33,5 +33,7 @@
 - [x] update node to open named socket inside root
 - [x] update node to delete existing socket if exist inside root
 - [x] fix pipe lib to work better with tgs
-- [ ] fix that one weird glitch where some people cant access mic for DOM
+- [ ] readd try mic access again
 - [x] fix up byond install
+- [x] make alternative for when link() dont work
+- [ ] see if its possible to make and enforce listen only connections for people who cant speak.
