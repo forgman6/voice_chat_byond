@@ -18,4 +18,6 @@ package-lock.json
 # pipelib specific
 *.o
 *.so
-
+*.dll
+Release
+FileContentIndex

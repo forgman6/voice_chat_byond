@@ -35,5 +35,9 @@
 - [x] fix up byond install
 - [x] make alternative for when link() dont work
 - [x] readd try mic access again
+- [x] add config
 - [ ] add mute mob byond side
-- [ ] see if its possible to make and enforce listen only connections for people who cant speak ingame.
+- [ ] see if its possible to make and enforce listen only connections for people who cant speak ingame.- [ ] see if you can do some voodoo to get file:/// working
+- [ ] try to get cross platform shit working with tmc gcc
+- [ ] signals proper
+- [ ] fix that one weird glitch where some people cant access mic for DOM

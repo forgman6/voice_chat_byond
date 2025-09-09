@@ -49,14 +49,21 @@
     // var/const/node_path = "voicechat/node/server/main.js"
     var/const/node_path = "voicechat/node/server/main.js"
     //library path
-    // var/const/lib_path = "voicechat/pipes/"
-    var/const/lib_path = "voicechat/pipes/byondsocket.so"
+    var/lib_path
+    var/const/lib_path_unix = "voicechat/pipes/unix/byondsocket"
+    var/const/lib_path_win = "voicechat/pipes/windows/byondsocket/Release/byondsocket" 
     //if you have a domain, put it here.
     var/const/domain
 
 
 /datum/controller/subsystem/voicechat/New()
     . = ..()
+
+    if(world.system_type == MS_WINDOWS)
+        lib_path = lib_path_win
+    else
+        lib_path = lib_path_unix
+
     //mock proc Initialize
     var/init_status = Initialize()
     if(init_status & ~SS_INIT_SUCCESS)
@@ -80,6 +87,7 @@
 
 /datum/controller/subsystem/voicechat/proc/start_node()
     // byond port used for topic calls
+    world.OpenPort(1337) // spaceman(vs launch with debuging) kind of gets weird if we dont specify a port
     var/byond_port = world.port
     spawn() shell("node [src.node_path] --node-port=[src.node_port] --byond-port=[byond_port]")
 

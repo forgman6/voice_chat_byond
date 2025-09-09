@@ -19,3 +19,5 @@ world/Topic(T, Addr, Master, Keys)
         SSvoicechat.handle_topic(T, Addr)
 
 var/global/datum/controller/subsystem/voicechat/SSvoicechat = new()
+
+

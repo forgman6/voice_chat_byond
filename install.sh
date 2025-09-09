@@ -41,7 +41,7 @@ echo "Building Node.js components..."
 cd voicechat/node
 npm install
 echo "Building shared library..."
-cd ../pipes && make
+cd ../pipes/unix && make
 echo "Build process completed successfully."
 
 
