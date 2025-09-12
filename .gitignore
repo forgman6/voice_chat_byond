@@ -19,5 +19,10 @@ package-lock.json
 *.o
 *.so
 *.dll
+#visual studio
 Release
-FileContentIndex
+x86
+x64
+Debug
+.vs/
+*.user

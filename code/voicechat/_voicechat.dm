@@ -194,6 +194,12 @@
         client_userCode_map.Remove(client_ref)
         userCode_room_map.Remove(userCode)
         vc_clients -= userCode
+        
+    if(userCodes_speaking_icon[userCode])
+        var/client/C = locate(client_ref)
+        if(C && C.mob)
+            C.mob.overlays -= userCodes_speaking_icon[userCode]
+            // C.mob.cut_overlay(userCodes_speaking_icon[userCode])
 
     if(from_byond)
         send_json(alist(cmd= "disconnect", userCode= userCode))

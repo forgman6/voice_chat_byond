@@ -48,7 +48,7 @@
     if(!C || !C.mob)
         disconnect(userCode, from_byond = TRUE)
         return
-
+    
     var/mob/M = C.mob
     room_update(M)
 

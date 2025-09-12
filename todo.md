@@ -36,8 +36,19 @@
 - [x] make alternative for when link() dont work
 - [x] readd try mic access again
 - [x] add config
-- [ ] add mute mob byond side
-- [ ] see if its possible to make and enforce listen only connections for people who cant speak ingame.- [ ] see if you can do some voodoo to get file:/// working
-- [ ] try to get cross platform shit working with tmc gcc
+- [x] try to get cross platform shit working
+- [x] minimal windows building instructions
+- [x] fix playback mic test sucking
+- [ ] rooms with no proximity - all players connected at once.
 - [ ] signals proper
-- [ ] fix that one weird glitch where some people cant access mic for DOM
+- [ ] add mute mob byond side
+    1. [ ] add database with ckey and a list of everyone that ckey **is muted by**
+    2. [ ] upon a new vcclient being created and connecting in game, cycle through muted by and add all mutes to clients
+    3. [] figure out decent verb or method to use to mute players
+        - [] right click dropdown menu on mobs
+        - [] manual verb that lets you select mobs in the same room within 7 tiles of you.
+    4. [] figure out how to unmute players.
+    5. an issue with unmuted players is Id like to do it without revealing ckeys to mobs.
+- [ ] add block mob byond side, like muted by they also cant hear you.
+- [ ] see if its possible to make and enforce listen only connections for people who cant speak ingame.
+- [ ] see if you can do some voodoo to get file:/// working
