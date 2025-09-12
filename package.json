@@ -1,5 +1,0 @@
-{
-  "dependencies": {
-    "signaling-server": "file:voicechat/node"
-  }
-}
