@@ -39,6 +39,11 @@
 - [x] try to get cross platform shit working
 - [x] minimal windows building instructions
 - [x] fix playback mic test sucking
+- [x] fix not being able to hear in closed spaces
+- [ ] fix nasty tg-server setup
+- [ ] test windows lib to see if any packets are missed
+- [ ] lobby voicechat
+- [ ] friendlier way to join voicechat
 - [ ] rooms with no proximity - all players connected at once.
 - [ ] signals proper
 - [ ] add mute mob byond side
