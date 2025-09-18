@@ -39,7 +39,11 @@
 - [x] try to get cross platform shit working
 - [x] minimal windows building instructions
 - [x] fix playback mic test sucking
-- [x] fix not being able to hear in closed spaces
+- [x] fix not being able to hear in closed spaces\
+- [ ] 		SSvoicechat.stop_node() // needs a new signal COMSIG_TICKER_SHUTDOWN/ROUND_END/REBOOT
+
+- [ ] update website to disconnecting mic after shutdown
+- [ ] fix issue when restarting.
 - [ ] fix nasty tg-server setup
 - [ ] test windows lib to see if any packets are missed
 - [ ] lobby voicechat
