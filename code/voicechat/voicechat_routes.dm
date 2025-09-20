@@ -12,7 +12,7 @@
 /proc/json_encode_sanitize(list/data)
     . = json_encode(data)
     //NOT in: alphanumeric, ", {}, :, commas, spaces, []
-    var/static/regex/r = new/regex(@'[^\w"{}:,\s\[\]]', "g")
+    var/static/regex/r = new/regex(@'[^\w"{}:.,\s\[\]]', "g")
     . = r.Replace(., "")
     . = replacetext(., "\\", "\\\\")
     return .
@@ -21,7 +21,7 @@
 /datum/controller/subsystem/voicechat/proc/send_json(list/data)
     var/json = json_encode_sanitize(data)
     #ifdef LOG_TRAFFIC
-    world.log << "BYOND: [json]"
+    world << "BYOND: [json]"
     #endif
     call_ext(src.lib_path, "byond:SendJSON")(json)
 
@@ -31,11 +31,11 @@
 
     var/list/data = json_decode(T)
     if(data["error"])
-        world.log << T
+        world << T
         return
 
     #ifdef LOG_TRAFFIC
-    world.log << "NODE: [T]"
+    world << "NODE: [T]"
     #endif
 
     if(data["server_ready"])
@@ -43,7 +43,7 @@
         return
 
     if(data["pong"])
-        world.log << "started: [data["time"]] round trip: [world.timeofday] approx: [world.timeofday -  data["time"]] x 1/10 seconds, data: [data["pong"]]"
+        world << "started: [data["time"]] round trip: [world.timeofday] approx: [world.timeofday -  data["time"]] x 1/10 seconds, data: [data["pong"]]"
         return
 
     if(data["confirmed"])

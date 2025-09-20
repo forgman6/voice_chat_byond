@@ -63,4 +63,11 @@
 /mob/verb/add_room(room as text)
     SSvoicechat.add_rooms(room)
 
+
+/mob/verb/start_ping()
+	SSvoicechat.pinging = TRUE
+
+/mob/verb/stop_ping()
+	SSvoicechat.pinging = FALSE
+
 #endif

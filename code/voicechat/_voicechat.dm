@@ -1,4 +1,4 @@
-// #define TESTING //uncomment to allow more verbs, and creation of fake players
+#define TESTING //uncomment to allow more verbs, and creation of fake players
 // #define LOG_TRAFFIC //uncomment to show byond and node traffic
 #ifdef TESTING
 /fake_client
@@ -26,6 +26,8 @@
     //a list all currnet rooms
     //change with add_rooms and remove_rooms.
     var/list/current_rooms = alist()
+    //list of rooms with direct chat (no proximity)
+    var/list/direct_rooms = list()
     // usercode to room
     var/list/userCode_room_map = alist()
     // usercode to mob only really used for the overlays
@@ -39,8 +41,10 @@
     //holds a normal list of all the ckeys and list of all usercodes that muted that ckey
     var/list/ckey_muted_by = alist()
     // if the server and node have successfully communicated
-    var/handshaked = FALSE
-
+    var/handshaked = FALSE\
+    #ifdef TESTING
+    var/pinging = FALSE
+    #endif
     //   --subsystem "defines"--
 
     //which port to run the node websockets
@@ -98,6 +102,8 @@
 //mock fire proc
 /datum/controller/subsystem/voicechat/proc/fire()
     send_locations()
+    if(pinging)
+        ping_node()
 
 /datum/controller/subsystem/voicechat/proc/handshaked()
     handshaked = TRUE
@@ -141,7 +147,7 @@
     var/client_ref = ref(client)
     userCode_client_map[userCode] = client_ref
     client_userCode_map[client_ref] = userCode
-    world.log << "registered userCode:[userCode] to client_ref:[client_ref]"
+    world << "registered userCode:[userCode] to client_ref:[client_ref]"
 
 
 // Confirms userCode when browser and mic access are granted
@@ -154,7 +160,7 @@
 
     vc_clients += userCode
     // log_world("Voice chat confirmed for userCode: [userCode]")
-    world.log << "Voice chat confirmed for userCode: [userCode]"
+    world << "Voice chat confirmed for userCode: [userCode]"
     post_confirm(userCode)
 
 // faster the better

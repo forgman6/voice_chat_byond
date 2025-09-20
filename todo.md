@@ -40,15 +40,14 @@
 - [x] minimal windows building instructions
 - [x] fix playback mic test sucking
 - [x] fix not being able to hear in closed spaces\
-- [ ] 		SSvoicechat.stop_node() // needs a new signal COMSIG_TICKER_SHUTDOWN/ROUND_END/REBOOT
-
-- [ ] update website to disconnecting mic after shutdown
-- [ ] fix issue when restarting.
+- [x] update website to disconnecting mic after shutdown
+- [x] fix issue when restarting.
+- [x] test windows lib to see if any packets are missed
+- [ ] SSvoicechat.stop_node() // needs better clean up calling
 - [ ] fix nasty tg-server setup
-- [ ] test windows lib to see if any packets are missed
-- [ ] lobby voicechat
 - [ ] friendlier way to join voicechat
 - [ ] rooms with no proximity - all players connected at once.
+- [ ] lobby voicechat
 - [ ] signals proper
 - [ ] add mute mob byond side
     1. [ ] add database with ckey and a list of everyone that ckey **is muted by**
