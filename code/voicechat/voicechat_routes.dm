@@ -38,8 +38,8 @@
 	world << "NODE: [T]"
 	#endif
 
-	if(data["server_ready"])
-		handshaked()
+	if(data["node_started"])
+		on_node_start(data["node_started"])
 		return
 
 	if(data["pong"])
@@ -55,6 +55,10 @@
 		return
 	if(data["disconnect"])
 		disconnect(userCode= data["disconnect"])
+	
+	if(data["shutting_down"])
+		is_node_shutting_down = TRUE
+
 
 		
 /world/Topic(T, Addr, Master, Keys)

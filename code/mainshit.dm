@@ -21,3 +21,8 @@ world/Topic(T, Addr, Master, Keys)
 var/global/datum/controller/subsystem/voicechat/SSvoicechat = new()
 
 
+/proc/message_admins(msg)
+	if(!msg)
+		return
+	world << msg
+	world.log << msg

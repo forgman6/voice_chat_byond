@@ -10,6 +10,7 @@ const byondPort = argv['byond-port']
 const nodePort = argv['node-port']
 const byondPID = argv['byond-pid']
 const shutdown_function = () => {
+    sendJSON({shutting_down: 1}, byondPort)
     disconnectAllClients(io);
     io.close(() => {
         wsServer.close(() => {
@@ -58,7 +59,8 @@ monitorParentProcess(shutdown_function);
 // Start servers
 const { io, server: wsServer } = startWebSocketServer(byondPort, nodePort);
 const ByondServer = startByondServer(byondPort, io, shutdown_function);
-sendJSON({ server_ready: 1 }, byondPort);
-
+setTimeout(() => {
+    sendJSON({ 'node_started': process.pid }, byondPort);
+}, 3000); 
 process.on('SIGTERM', () => shutdown_function())
 process.on('SIGINT', () => shutdown_function())

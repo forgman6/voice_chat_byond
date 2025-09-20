@@ -14,7 +14,10 @@
 	// flags = SS_KEEP_TIMING
 	// init_order = INIT_ORDER_VOICECHAT //close to last
 	// runlevels = RUNLEVEL_GAME|RUNLEVEL_POSTGAME 
-
+	//life cycle sanity shit, please dont touch
+	var/is_node_shutting_down = FALSE
+	//life cycle sanity shit, please dont touch
+	var/node_PID
 	//     --list shit--
 
 	//userCodes associated thats been fully confirmed - browser paired and mic perms on
@@ -22,7 +25,6 @@
 	//userCode to clientRef
 	var/list/userCode_client_map = alist()
 	var/list/client_userCode_map = alist()
-
 	//a list all currnet rooms
 	//change with add_rooms and remove_rooms.
 	var/list/current_rooms = alist()
@@ -41,7 +43,6 @@
 	//holds a normal list of all the ckeys and list of all usercodes that muted that ckey
 	var/list/ckey_muted_by = alist()
 	// if the server and node have successfully communicated
-	var/handshaked = FALSE
 	#ifdef TESTING
 	var/pinging = FALSE
 	#endif
@@ -82,7 +83,6 @@
 		fire()
 
 /datum/controller/subsystem/voicechat/proc/Initialize()
-	sleep(30)
 	if(!test_library())
 		return SS_INIT_FAILURE
 	add_rooms(rooms_to_add)
@@ -93,25 +93,53 @@
 /datum/controller/subsystem/voicechat/proc/start_node()
 	// byond port used for topic calls
 	world.OpenPort(1337) // spaceman(vs launch with debuging) kind of gets weird if we dont specify a port
+	world.OpenPort(1337)
 	var/byond_port = world.port
 	var/cmd = "node [src.node_path] --node-port=[node_port] --byond-port=[byond_port] --byond-pid=[world.process] &"
-	if(world.system_type == MS_WINDOWS)
+	if(world.system_type == MS_WINDOWS) // ape shit insane but its ok :)
 		cmd = "powershell.exe -Command \"Start-Process -FilePath 'node' -ArgumentList '[src.node_path]','--node-port=[node_port]','--byond-port=[byond_port]', '--byond-pid=[world.process]'\""
-	shell(cmd)
-
-
-/datum/controller/subsystem/voicechat/Del()
-	send_json(alist(cmd= "stop_node"))
-	. = ..()
+	var/exit_code = shell(cmd)
+	if(exit_code != 0)
+		message_admins("launching node failed {exit_code: [exit_code || "null"], cmd: [cmd || "null"]}")
 	
+/datum/controller/subsystem/voicechat/Del()
+	stop_node()
+	. = ..()
+
+/datum/controller/subsystem/voicechat/proc/stop_node()
+	send_json(alist(cmd= "stop_node"))
+	sleep(5)
+	confirm_node_stopped()
+
+/datum/controller/subsystem/voicechat/proc/confirm_node_stopped()
+	if(is_node_shutting_down)
+		return
+
+	message_admins("node failed to shutdown, trying forcefully...")
+
+	if(!node_PID)
+		message_admins("cant find pid to shutdown node. hard restart required to fix voicechat")
+		return
+	var/cmd = "kill [node_PID]"
+	if(world.system_type == MS_WINDOWS)
+		cmd = "taskkill /F /PID [node_PID]"
+	var/exit_code = shell(cmd)
+
+	if(exit_code != 0)
+		message_admins("killing node failed {exit_code: [exit_code || "null"], cmd: [cmd || "null"]}")
+	else
+		message_admins("node shutdown")
+		
 //mock fire proc
 /datum/controller/subsystem/voicechat/proc/fire()
 	send_locations()
 	if(pinging)
 		ping_node()
 
-/datum/controller/subsystem/voicechat/proc/handshaked()
-	handshaked = TRUE
+/datum/controller/subsystem/voicechat/proc/on_node_start(pid)
+	if(!pid || !isnum(pid))
+		CRASH("invalid pid {pid: [pid || "null"]}")
+	node_PID = pid
 	return
 
 /datum/controller/subsystem/voicechat/proc/add_rooms(list/rooms, zlevel_mode = FALSE)

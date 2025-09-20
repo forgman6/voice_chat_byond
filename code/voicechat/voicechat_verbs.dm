@@ -40,6 +40,10 @@
 
 
 #ifdef TESTING
+/mob/verb/try_shutdown()
+	if(SSvoicechat)
+		SSvoicechat.stop_node()
+
 /mob/verb/make_dummy_client()
 	var/global/number = 1
 	var/list/paramstuff = alist(cmd="register")
