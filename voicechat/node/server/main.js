@@ -8,6 +8,7 @@ const { sendJSON } = require('./byond/ByondCommunication.js');
 const argv = minimist(process.argv.slice(2));
 const byondPort = argv['byond-port']
 const nodePort = argv['node-port']
+const byondPID = argv['byond-pid']
 const shutdown_function = () => {
     disconnectAllClients(io);
     io.close(() => {
@@ -21,20 +22,19 @@ const shutdown_function = () => {
         });
     });
 };
-
-const originalParentPid = process.ppid;
+;
 
 function isParentRunning() {
     if (process.platform === 'win32') {
         try {
-            const output = execSync(`tasklist /FI "PID eq ${originalParentPid}"`).toString();
-            return output.includes(originalParentPid.toString());
+            const output = execSync(`tasklist /FI "PID eq ${byondPID}"`).toString();
+            return output.includes(byondPID.toString());
         } catch (e) {
             return false;
         }
     } else {
         try {
-            process.kill(originalParentPid, 0);
+            process.kill(byondPID, 0);
             return true;
         } catch (e) {
             return false;

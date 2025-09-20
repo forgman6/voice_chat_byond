@@ -41,27 +41,27 @@
 
 #ifdef TESTING
 /mob/verb/make_dummy_client()
-    var/global/number = 1
-    var/list/paramstuff = alist(cmd="register")
-    var/sessionId = "dummy_[number]"
-    number ++
-    src << link("https://localhost:[SSvoicechat.node_port]?sessionId=[sessionId]")
-    paramstuff["userCode"] = "[sessionId]"
-    paramstuff["sessionId"] = "[sessionId]"
-    SSvoicechat.send_json(paramstuff)
-    var/mob/dummy_mob = new(loc)
-    dummy_mob.tag = sessionId
-    dummy_mob.name = sessionId
-    var/fake_client/C = new
-    C.mob = dummy_mob
-    dummy_mob.dummy_client = C
-    SSvoicechat.link_userCode_client(sessionId, C)
+	var/global/number = 1
+	var/list/paramstuff = alist(cmd="register")
+	var/sessionId = "dummy_[number]"
+	number ++
+	src << link("https://localhost:[SSvoicechat.node_port]?sessionId=[sessionId]")
+	paramstuff["userCode"] = "[sessionId]"
+	paramstuff["sessionId"] = "[sessionId]"
+	SSvoicechat.send_json(paramstuff)
+	var/mob/dummy_mob = new(loc)
+	dummy_mob.tag = sessionId
+	dummy_mob.name = sessionId
+	var/fake_client/C = new
+	C.mob = dummy_mob
+	dummy_mob.dummy_client = C
+	SSvoicechat.link_userCode_client(sessionId, C)
 
 /mob/verb/change_room(userCode in SSvoicechat.vc_clients, room in SSvoicechat.current_rooms)
-    SSvoicechat.move_userCode_to_room(userCode, room)
+	SSvoicechat.move_userCode_to_room(userCode, room)
 
 /mob/verb/add_room(room as text)
-    SSvoicechat.add_rooms(room)
+	SSvoicechat.add_rooms(room)
 
 
 /mob/verb/start_ping()

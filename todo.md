@@ -4,7 +4,7 @@
 - [x] port tools
 - [x] byond remove rooms
 - [x] node remove rooms
-- [x] get mute deafen working again, 
+- [x] get mute deafen working again,
 - [x] switch track to null if not sending
 - [x] fix audio playback
 - [x] clean up code for when a browser gets closed
@@ -14,15 +14,15 @@
 - [x] optimize the neighbor function.
 - [x] set it up so it works outside of localhost
 - [x] test over non localhost
-- [x] make location shit tick every 300 ms 
+- [x] make location shit tick every 300 ms
 - [x] add room var to client that gets treated like zlevel.
 - [x] clean up add dummy client so it only exist when in debug mode
 - [x] fixed mic access condition
-- [x] test rooms outside localhost  
+- [x] test rooms outside localhost
 - [x] update disconnect to update with message to user
 - [x] increase updates
 - [x] make the speaking ui's only appear only to those connected to voicechat and on the same zlevel/room
-    1. [x] instead making and deleting the image change the opacity. 
+    1. [x] instead making and deleting the image change the opacity.
     2. [x] figure out if you make overlays only visible to some or you need to use client.images
     3. [x] for everyone in a room, keep a list of the userCodes so you can use it for the overlays
 - [x] add map elements to change your room and change the color of the player to show it
@@ -43,6 +43,8 @@
 - [x] update website to disconnecting mic after shutdown
 - [x] fix issue when restarting.
 - [x] test windows lib to see if any packets are missed
+- [x] detach shell()
+- [x] fix parent process tracking 
 - [ ] SSvoicechat.stop_node() // needs better clean up calling
 - [ ] fix nasty tg-server setup
 - [ ] friendlier way to join voicechat
