@@ -90,10 +90,17 @@
 	return SS_INIT_SUCCESS
 
 
+/datum/controller/subsystem/voicechat/proc/restart()
+	message_admins("voicechat_restarting, please reconnect with join_vc")
+	disconnect_all_clients()
+	stop_node()
+	spawn(5) start_node()
+	is_node_shutting_down = FALSE
+	
+
 /datum/controller/subsystem/voicechat/proc/start_node()
 	// byond port used for topic calls
 	world.OpenPort(1337) // spaceman(vs launch with debuging) kind of gets weird if we dont specify a port
-	world.OpenPort(1337)
 	var/byond_port = world.port
 	var/cmd = "node [src.node_path] --node-port=[node_port] --byond-port=[byond_port] --byond-pid=[world.process] &"
 	if(world.system_type == MS_WINDOWS) // ape shit insane but its ok :)
@@ -101,10 +108,16 @@
 	var/exit_code = shell(cmd)
 	if(exit_code != 0)
 		message_admins("launching node failed {exit_code: [exit_code || "null"], cmd: [cmd || "null"]}")
+	else
+		return TRUE
 	
 /datum/controller/subsystem/voicechat/Del()
 	stop_node()
 	. = ..()
+
+/datum/controller/subsystem/voicechat/proc/disconnect_all_clients()
+	for(var/userCode in vc_clients)
+		disconnect(userCode, from_byond = TRUE)
 
 /datum/controller/subsystem/voicechat/proc/stop_node()
 	send_json(alist(cmd= "stop_node"))

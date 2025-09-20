@@ -40,6 +40,11 @@
 
 
 #ifdef TESTING
+/mob/verb/restart()
+	if(SSvoicechat)
+		SSvoicechat.restart()
+
+
 /mob/verb/try_shutdown()
 	if(SSvoicechat)
 		SSvoicechat.stop_node()

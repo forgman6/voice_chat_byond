@@ -9,6 +9,7 @@ const argv = minimist(process.argv.slice(2));
 const byondPort = argv['byond-port']
 const nodePort = argv['node-port']
 const byondPID = argv['byond-pid']
+
 const shutdown_function = () => {
     sendJSON({shutting_down: 1}, byondPort)
     disconnectAllClients(io);

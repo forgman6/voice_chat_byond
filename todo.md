@@ -44,10 +44,12 @@
 - [x] fix issue when restarting.
 - [x] test windows lib to see if any packets are missed
 - [x] detach shell()
-- [x] fix parent process tracking 
-- [ ] SSvoicechat.stop_node() // needs better clean up calling
-- [ ] fix nasty tg-server setup
+- [x] fix parent process tracking
+- [x] SSvoicechat.stop_node() // needs better clean up calling
+- [ ] restart proc for admins
+- [ ] move pid to file that we can kill between rounds.
 - [ ] friendlier way to join voicechat
+- [ ] fix nasty tg-server setup
 - [ ] rooms with no proximity - all players connected at once.
 - [ ] lobby voicechat
 - [ ] signals proper
@@ -60,5 +62,5 @@
     4. [] figure out how to unmute players.
     5. an issue with unmuted players is Id like to do it without revealing ckeys to mobs.
 - [ ] add block mob byond side, like muted by they also cant hear you.
-- [ ] see if its possible to make and enforce listen only connections for people who cant speak ingame.
+- [ ] see if its possible to make and enforce listen only connections for people who cant speak ingame. (ghost -> living) and things that cant talk like mimes
 - [ ] see if you can do some voodoo to get file:/// working
