@@ -14,6 +14,7 @@ __*__
 node_modules/
 npm-debug.log
 package-lock.json
+node.pid
 
 # pipelib specific
 *.o

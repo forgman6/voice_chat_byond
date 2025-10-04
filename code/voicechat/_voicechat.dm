@@ -14,10 +14,6 @@
 	// flags = SS_KEEP_TIMING
 	// init_order = INIT_ORDER_VOICECHAT //close to last
 	// runlevels = RUNLEVEL_GAME|RUNLEVEL_POSTGAME 
-	//life cycle sanity shit, please dont touch
-	var/is_node_shutting_down = FALSE
-	//life cycle sanity shit, please dont touch
-	var/node_PID
 	//     --list shit--
 
 	//userCodes associated thats been fully confirmed - browser paired and mic perms on
@@ -95,7 +91,7 @@
 	disconnect_all_clients()
 	stop_node()
 	spawn(5) start_node()
-	is_node_shutting_down = FALSE
+
 	
 
 /datum/controller/subsystem/voicechat/proc/start_node()
@@ -120,39 +116,37 @@
 		disconnect(userCode, from_byond = TRUE)
 
 /datum/controller/subsystem/voicechat/proc/stop_node()
-	send_json(alist(cmd= "stop_node"))
-	sleep(5)
-	confirm_node_stopped()
+	send_json(alist(cmd="stop_node"))
+	spawn(5) ensure_node_stopped()
 
-/datum/controller/subsystem/voicechat/proc/confirm_node_stopped()
-	if(is_node_shutting_down)
-		return
 
-	message_admins("node failed to shutdown, trying forcefully...")
+/datum/controller/subsystem/voicechat/proc/ensure_node_stopped()
+	var/pid = file2text("data/node.pid")
+	if(!pid)
+		return TRUE
 
-	if(!node_PID)
-		message_admins("cant find pid to shutdown node. hard restart required to fix voicechat")
-		return
-	var/cmd = "kill [node_PID]"
+	message_admins("node failed to shutdown when asked, trying forcefully...")
+
+	var/cmd = "kill [pid]"
 	if(world.system_type == MS_WINDOWS)
-		cmd = "taskkill /F /PID [node_PID]"
+		cmd = "taskkill /F /PID [pid]"
 	var/exit_code = shell(cmd)
 
 	if(exit_code != 0)
 		message_admins("killing node failed {exit_code: [exit_code || "null"], cmd: [cmd || "null"]}")
 	else
-		message_admins("node shutdown")
-		
+		message_admins("node shutdown forcefully")
+		fdel("data/node.pid")
+
+/datum/controller/subsystem/voicechat/proc/verify_node_stopped()
+
 //mock fire proc
 /datum/controller/subsystem/voicechat/proc/fire()
 	send_locations()
 	if(pinging)
 		ping_node()
 
-/datum/controller/subsystem/voicechat/proc/on_node_start(pid)
-	if(!pid || !isnum(pid))
-		CRASH("invalid pid {pid: [pid || "null"]}")
-	node_PID = pid
+/datum/controller/subsystem/voicechat/proc/on_node_start()
 	return
 
 /datum/controller/subsystem/voicechat/proc/add_rooms(list/rooms, zlevel_mode = FALSE)
