@@ -53,7 +53,7 @@
 - [x] new tab for voicechat
 - [x] toggle_voicechat proc for admins
 - [x] move pid to file that we can kill between rounds.
-- [ ] node turn server
+- [x] node turn server
 - [ ] rooms with no proximity - all players connected at once.
 - [ ] lobby voicechat
 - [ ] signals proper
