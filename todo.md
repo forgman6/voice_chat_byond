@@ -52,7 +52,7 @@
 - [x] help menu
 - [x] new tab for voicechat
 - [x] toggle_voicechat proc for admins
-- [ ] move pid to file that we can kill between rounds.
+- [x] move pid to file that we can kill between rounds.
 - [ ] node turn server
 - [ ] rooms with no proximity - all players connected at once.
 - [ ] lobby voicechat

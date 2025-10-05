@@ -1,4 +1,4 @@
-#define TESTING //uncomment to allow more verbs, and creation of fake players
+// #define TESTING //uncomment to allow more verbs, and creation of fake players
 // #define LOG_TRAFFIC //uncomment to show byond and node traffic
 #ifdef TESTING
 /fake_client
@@ -39,9 +39,7 @@
 	//holds a normal list of all the ckeys and list of all usercodes that muted that ckey
 	var/list/ckey_muted_by = alist()
 	// if the server and node have successfully communicated
-	#ifdef TESTING
 	var/pinging = FALSE
-	#endif
 	//   --subsystem "defines"--
 
 	//which port to run the node websockets
