@@ -1,3 +1,7 @@
+#define RED "red"
+#define BLUE "blue"
+#define GREEN "green_noprox"
+
 /turf/room_changer
 	var/room
 	var/color_change
@@ -8,8 +12,8 @@
 	var/mob/M = Obj
 	if(!SSvoicechat || !room || !istype(M))
 		return
-	if(!SSvoicechat.current_rooms.Find("red")) //add rooms on first run
-		SSvoicechat.add_rooms(list("red", "blue", "green"))
+	if(!SSvoicechat.current_rooms.Find(RED)) //add rooms on first run
+		SSvoicechat.add_rooms(list(RED, BLUE, GREEN))
 	var/userCode = SSvoicechat.client_userCode_map[ref(M.client)]
 	if(!userCode)
 		return
@@ -25,17 +29,17 @@
 /turf/room_changer/blue
 	icon_state = "b"
 	color_change = "#00F"
-	room = "blue"
+	room = BLUE
 
 /turf/room_changer/green
 	icon_state = "g"
 	color_change = "#0F0"
-	room = "green"
+	room = GREEN
 
 /turf/room_changer/red
 	icon_state = "r"
 	color_change = "#F00"
-	room = "red"
+	room = RED
 
 /turf/room_changer/white
 	icon_state = "w"

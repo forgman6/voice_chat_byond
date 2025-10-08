@@ -1,14 +1,18 @@
 /mob/verb/join_vc()
+	set name = "Join"
+	set category = "1. ProxChat"
 	if(SSvoicechat)
 		SSvoicechat.join_vc(client)
 
 /mob/verb/join_vc_external()
+	set name = "Join with URL"
+	set category = "1. ProxChat"
 	if(SSvoicechat)
 		SSvoicechat.join_vc(client, show_link_only=TRUE)
 
 /mob/verb/help_voicechat()
 	set name = "Help"
-	set category = "Voicechat"
+	set category = "1. ProxChat"
 	src << browse({"
 	<html>
 		<h2>Experimental Proximity Chat</h2>
@@ -61,11 +65,11 @@
 			Contributions are always welcome. Currently this is a solo project.
 		</p>
 	</html>
-	"}, "window=voicechat_help")
+	"}, "window=hugagh")
 
 /mob/verb/leave()
 	set name = "Leave"
-	set category = "Voicechat"
+	set category = "1. ProxChat"
 	if(!SSvoicechat)
 		return
 	var/userCode = SSvoicechat.client_userCode_map[ref(client)]
@@ -75,26 +79,36 @@
 	SSvoicechat.disconnect(userCode, from_byond=TRUE)
 
 /mob/verb/mute_self()
+	set name = "Mute"
+	set category = "1. ProxChat"
 	if(SSvoicechat)
 		SSvoicechat.mute_mic(client)
 
 
 /mob/verb/deafen()
+	set name = "Deafen"
+	set category = "1. ProxChat"
 	if(SSvoicechat)
 		SSvoicechat.mute_mic(client, deafen=TRUE)
 
 
 #ifdef TESTING
 /mob/verb/restart()
+	set name = "restart voicechat"
+	set category = "2. Server"
 	if(SSvoicechat)
 		SSvoicechat.restart()
 
 
 /mob/verb/try_shutdown()
+	set name = "shutdown voicechat"
+	set category = "2. Server"
 	if(SSvoicechat)
 		SSvoicechat.stop_node()
 
 /mob/verb/make_dummy_client()
+	set name = "make dummy client"
+	set category = "3. Debug"
 	var/global/number = 1
 	var/list/paramstuff = alist(cmd="register")
 	var/sessionId = "dummy_[number]"
@@ -112,16 +126,41 @@
 	SSvoicechat.link_userCode_client(sessionId, C)
 
 /mob/verb/change_room(userCode in SSvoicechat.vc_clients, room in SSvoicechat.current_rooms)
+	set name = "change room"
+	set category = "3. Debug"
 	SSvoicechat.move_userCode_to_room(userCode, room)
 
 /mob/verb/add_room(room as text)
+	set name = "add room"
+	set category = "3. Debug"
 	SSvoicechat.add_rooms(room)
 
 
-/mob/verb/start_ping()
-	SSvoicechat.pinging = TRUE
+/mob/verb/ping()
+	set name = "toggle ping"
+	set category = "3. Debug"
+	SSvoicechat.pinging = !SSvoicechat.pinging
 
-/mob/verb/stop_ping()
-	SSvoicechat.pinging = FALSE
+/mob/verb/tests()
+	set name = "run tests"
+	set category = "3. Debug"
+	world << "calling lib..."
+	world << call_ext(SSvoicechat.lib_path, "byond:Echo")("calling lib worked")
+	world << "send bad JSON..."
+	var/params = alist(1="bad_key")
+	SSvoicechat.send_json(params)
+	sleep(1)
+	world << "send json with no command..."
+	params = alist(message="no command", "extra"="still no command")
+	SSvoicechat.send_json(params)
+	sleep(1)
+	world << "send unknown command..."
+	params = alist(cmd="nonexistant command")
+	SSvoicechat.send_json(params)
+
+	world << "pinging node"
+	SSvoicechat.ping_node()
+	sleep(1)
+
 
 #endif

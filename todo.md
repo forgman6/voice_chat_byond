@@ -54,7 +54,8 @@
 - [x] toggle_voicechat proc for admins
 - [x] move pid to file that we can kill between rounds.
 - [x] node turn server
-- [ ] rooms with no proximity - all players connected at once.
+- [x] rooms with no proximity - all players connected at once.
+- [x] verb browser in panel
 - [ ] lobby voicechat
 - [ ] signals proper
 - [ ] add mute mob byond side

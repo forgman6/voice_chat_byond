@@ -50,8 +50,8 @@
 		return
 	
 	var/mob/M = C.mob
+	move_userCode_to_room(userCode, "living")
 	room_update(M)
-
 
 /datum/controller/subsystem/voicechat/proc/toggle_active(userCode, is_active)
 	if(!userCode || isnull(is_active))
