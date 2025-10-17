@@ -17,7 +17,6 @@
 #include "code\mainshit.dm"
 #include "code\mock_subsystem_defines.dm"
 #include "code\room_turfs.dm"
-#include "code\tests.dm"
 #include "code\core\auxtools.dm"
 #include "code\core\world.dm"
 #include "code\core\skin.dmf"

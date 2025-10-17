@@ -55,6 +55,11 @@
 		return
 	if(data["disconnect"])
 		disconnect(userCode= data["disconnect"])
+		return
+
+	if(data["ice_failed"])
+		on_ice_failed(userCode=data["ice_failed"])
+		return
 		
 /world/Topic(T, Addr, Master, Keys)
 	. = ..()

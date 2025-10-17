@@ -3,7 +3,7 @@
 	if(!C)
 		return
 	// Disconnect existing session if present
-	var/existing_userCode = client_userCode_map[ref(C)]
+	var/existing_userCode = client_userCode_map[C]
 	if(existing_userCode)
 		disconnect(existing_userCode, from_byond = TRUE)
 
@@ -13,7 +13,7 @@
 	if(!userCode)
 		return
 
-	// Open external browser with voice chat link 
+	// Open external browser with voice chat link
 	var/address = src.domain || world.internet_address
 	var/web_link = "https://[address]:[node_port]?sessionId=[sessionId]"
 	#ifdef TESTING
@@ -31,6 +31,7 @@
 			</body>
 		</html>"}, "window=voicechat_help")
 
+
 	send_json(alist(
 		cmd = "register",
 		userCode = userCode,
@@ -38,25 +39,58 @@
 	))
 
 	// Link client to userCode
-	userCode_client_map[userCode] = ref(C)
-	client_userCode_map[ref(C)] = userCode
-	// Confirmation handled in confirm_userCode
+	userCode_client_map[userCode] = C
+	client_userCode_map[C] = userCode
+	// Confirmation handled in confirm_usekrCode
 
 
-/datum/controller/subsystem/voicechat/proc/post_confirm(userCode)
-	var/client/C = locate(userCode_client_map[userCode])
-	if(!C || !C.mob)
-		disconnect(userCode, from_byond = TRUE)
+// Confirms userCode when browser and mic access are granted
+/datum/controller/subsystem/voicechat/proc/confirm_userCode(userCode)
+	if(!userCode || (userCode in vc_clients))
 		return
-	
+	var/client/C = userCode_client_map[userCode]
 	var/mob/M = C.mob
-	move_userCode_to_room(userCode, "living")
-	room_update(M)
+	if(!C || !M)
+		disconnect(userCode)
+		return
+	mob_client_map[M] = C
 
+	vc_clients += userCode
+	move_userCode_to_room(userCode, "living")
+
+// Disconnects a user from voice chat
+/datum/controller/subsystem/voicechat/proc/disconnect(userCode, from_byond = FALSE)
+	if(!userCode)
+		return
+	toggle_active(userCode, FALSE)
+	clear_userCode(userCode)
+
+	var/client/C = userCode_client_map[userCode]
+	if(C)
+		userCode_client_map.Remove(userCode)
+		client_userCode_map.Remove(C)
+		userCode_room_map.Remove(userCode)
+		vc_clients -= userCode
+
+	var/mob/M = C.mob
+
+	if(userCodes_speaking_icon[userCode])
+		if(C && M)
+			M.overlays -= userCodes_speaking_icon[userCode]
+			// unregister_mob_signals(M)
+
+	if(from_byond)
+		send_json(alist(cmd= "disconnect", userCode= userCode))
+	// //for lobby chat
+
+	// if(SSticker.current_state < GAME_STATE_PLAYING)
+	// 	send_locations()
+
+// Toggles the speaker overlay for a user
 /datum/controller/subsystem/voicechat/proc/toggle_active(userCode, is_active)
 	if(!userCode || isnull(is_active))
 		return
-	var/client/C = locate(userCode_client_map[userCode])
+	var/client/C = userCode_client_map[userCode]
 
 	if(!C || !C.mob)
 		return
@@ -72,26 +106,22 @@
 		if(old_mob)
 			old_mob.overlays -= speaker
 		userCode_mob_map[userCode] = M
-		room_update(M)
-	// if(is_active && (isobserver(M) || !M.stat))
-	// 	userCodes_active |= userCode
-	// 	M.add_overlay(speaker)
-	// else
-	// 	userCodes_active -= userCode
-	// 	M.cut_overlay(speaker)
-	if(is_active)
+	var/room = userCode_room_map[userCode]
+	if(is_active && room)
 		userCodes_active |= userCode
 		M.overlays |= speaker
 	else
 		userCodes_active -= userCode
 		M.overlays -= speaker
 
+// Mutes or deafens a user's microphone
 /datum/controller/subsystem/voicechat/proc/mute_mic(client/C, deafen = FALSE)
 	if(!C)
 		return
-	var/userCode = client_userCode_map[ref(C)]
+	var/userCode = client_userCode_map[C]
 	if(!userCode)
 		return
 	send_json(list(
 		cmd = deafen ? "deafen" : "mute_mic",
-		userCode = userCode))
+		userCode = userCode
+	))

@@ -56,8 +56,20 @@
 - [x] node turn server
 - [x] rooms with no proximity - all players connected at once.
 - [x] verb browser in panel
-- [ ] lobby voicechat
-- [ ] signals proper
+- [x] lobby voicechat
+    - [x] port shit over
+    - [x] if round hasnt started
+    - [x] make it so everytime someone joins/leaves, it fires even in before round start.
+    - [x] move voicechat up farther in init time.
+- [x] signals proper
+    - [x] find something to use when mob logs in
+    - [x] find signals needed to track mob
+    - [x] set up the logic for that
+- [x] ui shows when connection fails
+- [x] signal sent to server when connection fails.
+- [ ] tutorial video linked in help page
+- [x] update readme to remove turn server suggestion
++0
 - [ ] add mute mob byond side
     1. [ ] add database with ckey and a list of everyone that ckey **is muted by**
     2. [ ] upon a new vcclient being created and connecting in game, cycle through muted by and add all mutes to clients
@@ -69,5 +81,5 @@
 - [ ] add block mob byond side, like muted by they also cant hear you.
 - [ ] fix nasty tg-server setup
 - [ ] see if its possible to make and enforce listen only connections for people who cant speak ingame. (ghost -> living) and things that cant talk like mimes
-- [ ] see if you can do some voodoo to get file:/// working
+    - [ ] set up mime
 - [ ] check mob languages

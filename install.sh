@@ -32,7 +32,8 @@ else
     unzip byond.zip
     rm byond.zip
     cd byond
-    sudo make install
+    make here
+    source ~/BYOND/byond/bin/byondsetup
     echo "$BYOND_MAJOR.$BYOND_MINOR" > "$HOME/BYOND/version.txt"
     cd ~/${PROJECT_NAME}
 fi

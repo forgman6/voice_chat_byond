@@ -1,4 +1,4 @@
-// #define TESTING //uncomment to allow more verbs, and creation of fake players
+#define TESTING //uncomment to allow more verbs, and creation of fake players
 // #define LOG_TRAFFIC //uncomment to show byond and node traffic
 #ifdef TESTING
 /fake_client
@@ -10,59 +10,44 @@
 //controller isnt defined, the path is used to make adding this easier
 /datum/controller/subsystem/voicechat
 	var/name = "Voice Chat"
+	/// faster tick times means smoother proximity. If machine is lagging, increase.
 	var/wait = 3 //300 ms
 	// flags = SS_KEEP_TIMING
-	// init_order = INIT_ORDER_VOICECHAT //close to last
-	// runlevels = RUNLEVEL_GAME|RUNLEVEL_POSTGAME 
-	//     --list shit--
-
+	// init_order = INIT_ORDER_VOICECHAT
+	// runlevels = RUNLEVEL_GAME|RUNLEVEL_POSTGAME
 	//userCodes associated thats been fully confirmed - browser paired and mic perms on
 	var/list/vc_clients = list()
 	//userCode to clientRef
 	var/list/userCode_client_map = alist()
 	var/list/client_userCode_map = alist()
-	//a list all currnet rooms
 	//change with add_rooms and remove_rooms.
 	var/list/current_rooms = alist()
-	//list of rooms with direct chat (no proximity)
-	var/list/direct_rooms = list()
 	// usercode to room
 	var/list/userCode_room_map = alist()
 	// usercode to mob only really used for the overlays
 	var/list/userCode_mob_map = alist()
-	// used to ensure rooms are always updated
+	// mob to client map, needed for tracking switched mobs
+	var/list/mob_client_map = alist()
+	// used to manage overlays
 	var/list/userCodes_active = list()
 	// each speaker per userCode
 	var/list/userCodes_speaking_icon = alist()
 	//list of all rooms to add at round start
-	var/list/rooms_to_add = list("living", "ghost") // xeno, marines, admin, etc
+	var/list/rooms_to_add = list("living", "ghost")
 	//holds a normal list of all the ckeys and list of all usercodes that muted that ckey
 	var/list/ckey_muted_by = alist()
-	// if the server and node have successfully communicated
-	var/pinging = FALSE
-	//   --subsystem "defines"--
-
-	//which port to run the node websockets
-	var/const/node_port = 3000
 	//node server path
-	// var/const/node_path = "voicechat/node/server/main.js"
 	var/const/node_path = "voicechat/node/server/main.js"
-	//library path
+	//library path set in get lib path
 	var/lib_path
-	var/const/lib_path_unix = "voicechat/pipes/unix/byondsocket"
-	var/const/lib_path_win = "voicechat/pipes/windows/byondsocket/Release/byondsocket" 
 	//if you have a domain, put it here.
 	var/const/domain
+	var/pinging
+	var/node_port = 3000
 
 
 /datum/controller/subsystem/voicechat/New()
 	. = ..()
-
-	if(world.system_type == MS_WINDOWS)
-		lib_path = lib_path_win
-	else
-		lib_path = lib_path_unix
-
 	//mock proc Initialize
 	var/init_status = Initialize()
 	if(init_status & ~SS_INIT_SUCCESS)
@@ -71,17 +56,29 @@
 	//mock firing setup
 	spawn() start_firing()
 
+
 /datum/controller/subsystem/voicechat/proc/start_firing()
 	while(TRUE)
 		sleep(wait)
 		fire()
 
 /datum/controller/subsystem/voicechat/proc/Initialize()
+	set_lib_path()
 	if(!test_library())
 		return SS_INIT_FAILURE
+
 	add_rooms(rooms_to_add)
 	start_node()
 	return SS_INIT_SUCCESS
+
+
+/datum/controller/subsystem/voicechat/proc/set_lib_path()
+	var/const/lib_path_unix = "voicechat/pipes/unix/byondsocket"
+	var/const/lib_path_win = "voicechat/pipes/windows/byondsocket/Release/byondsocket"
+	if(world.system_type == MS_WINDOWS)
+		lib_path = lib_path_win
+	else
+		lib_path = lib_path_unix
 
 
 /datum/controller/subsystem/voicechat/proc/restart()
@@ -90,7 +87,12 @@
 	stop_node()
 	spawn(5) start_node()
 
-	
+/datum/controller/subsystem/voicechat/proc/on_ice_failed(userCode)
+	if(!userCode)
+		CRASH("ice_failed error without usercode {userCode: [userCode || "null"]")
+	var/client/C = userCode_client_map[userCode]
+	message_admins("voicechat peer connection failed for [C || userCode]")
+
 
 /datum/controller/subsystem/voicechat/proc/start_node()
 	// byond port used for topic calls
@@ -166,6 +168,14 @@
 			userCode_room_map[userCode] = null
 		current_rooms.Remove(room)
 
+/datum/controller/subsystem/voicechat/proc/clear_userCode(userCode)
+	var/own_room = userCode_room_map[userCode]
+	if(own_room)
+		current_rooms[own_room] -= userCode
+
+	userCode_room_map[userCode] = null
+	message_admins("clear room worked room [userCode_room_map[userCode] || "null"]")
+
 /datum/controller/subsystem/voicechat/proc/move_userCode_to_room(userCode, room)
 	if(!room || !current_rooms.Find(room))
 		return
@@ -176,77 +186,40 @@
 
 	userCode_room_map[userCode] = room
 	current_rooms[room] += userCode
+	message_admins("move to room worked room [userCode_room_map[userCode] || "null"]")
+
 
 
 /datum/controller/subsystem/voicechat/proc/link_userCode_client(userCode, client)
 	if(!client|| !userCode)
 		// CRASH("{userCode: [userCode || "null"], client: [client  || "null"]}")
 		return
-	var/client_ref = ref(client)
-	userCode_client_map[userCode] = client_ref
-	client_userCode_map[client_ref] = userCode
-	world << "registered userCode:[userCode] to client_ref:[client_ref]"
-
-
-// Confirms userCode when browser and mic access are granted
-/datum/controller/subsystem/voicechat/proc/confirm_userCode(userCode)
-	if(!userCode || (userCode in vc_clients))
-		return
-	var/client_ref = userCode_client_map[userCode]
-	if(!client_ref)
-		return
-
-	vc_clients += userCode
-	// log_world("Voice chat confirmed for userCode: [userCode]")
-	world << "Voice chat confirmed for userCode: [userCode]"
-	post_confirm(userCode)
+	userCode_client_map[userCode] = client
+	client_userCode_map[client] = userCode
 
 // faster the better
 /datum/controller/subsystem/voicechat/proc/send_locations()
-	var/list/params = alist(cmd = "loc")
+	var/list/params = list(cmd = "loc")
+	var/locs_sent = 0
+
 	for(var/userCode in vc_clients)
-		var/client/C = locate(userCode_client_map[userCode])
+		var/client/C = userCode_client_map[userCode]
 		var/room =  userCode_room_map[userCode]
 		if(!C || !room)
 			continue
 		var/mob/M = C.mob
-		var/zlevel = M.z
-		if(!M || !zlevel)
+		if(!M)
 			continue
-		var/localroom = "[zlevel]_[room]"
-		if(userCode in userCodes_active)
-			room_update(M)
+		var/turf/T = get_turf(M)
+		var/localroom = "[T.z]_[room]"
 		if(!params[localroom])
-			params[localroom] = alist()
-		params[localroom][userCode] = list(M.x, M.y)
-	send_json(params)
+			params[localroom] = list()
+		params[localroom][userCode] = list(T.x, T.y)
+		locs_sent ++
 
-
-// Disconnects a user from voice chat
-/datum/controller/subsystem/voicechat/proc/disconnect(userCode, from_byond = FALSE)
-	if(!userCode)
+	if(!locs_sent) //dont send empty packets
 		return
-
-	toggle_active(userCode, FALSE)
-	var/room = userCode_room_map[userCode]
-	if(room)
-		current_rooms[room] -= userCode
-
-	var/client_ref = userCode_client_map[userCode]
-	if(client_ref)
-		userCode_client_map.Remove(userCode)
-		client_userCode_map.Remove(client_ref)
-		userCode_room_map.Remove(userCode)
-		vc_clients -= userCode
-		
-	if(userCodes_speaking_icon[userCode])
-		var/client/C = locate(client_ref)
-		if(C && C.mob)
-			C.mob.overlays -= userCodes_speaking_icon[userCode]
-			// C.mob.cut_overlay(userCodes_speaking_icon[userCode])
-
-	if(from_byond)
-		send_json(alist(cmd= "disconnect", userCode= userCode))
+	send_json(params)
 
 
 /datum/controller/subsystem/voicechat/proc/generate_userCode(client/C)
@@ -261,23 +234,6 @@
 
 /datum/controller/subsystem/voicechat/proc/room_update(mob/source)
 	return
-
-// shit pattern
-// /datum/controller/subsystem/voicechat/proc/room_update(mob/source)
-// 	var/client/C = source.client
-// 	var/userCode = client_userCode_map[ref(C)]
-// 	if(!C || !userCode)
-// 		return
-// 	var/room
-// 	switch(source.stat)
-// 		if(CONSCIOUS to SOFT_CRIT)
-// 			room = "living"
-// 		if(UNCONSCIOUS to HARD_CRIT)
-// 			room = null
-// 		else
-// 			room = "ghost"
-// 	if(userCode_room_map[userCode] != room)
-// 		move_userCode_to_room(userCode, room)
 
 
 /datum/controller/subsystem/voicechat/proc/ping_node()

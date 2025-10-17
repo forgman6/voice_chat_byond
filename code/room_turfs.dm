@@ -14,7 +14,7 @@
 		return
 	if(!SSvoicechat.current_rooms.Find(RED)) //add rooms on first run
 		SSvoicechat.add_rooms(list(RED, BLUE, GREEN))
-	var/userCode = SSvoicechat.client_userCode_map[ref(M.client)]
+	var/userCode = SSvoicechat.client_userCode_map[M.client]
 	if(!userCode)
 		return
 	M << "changing rooms..."
