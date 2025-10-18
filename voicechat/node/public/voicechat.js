@@ -36,13 +36,13 @@ const sessionId = urlParams.get('sessionId');
 const address = window.location.host;
 
 const ICE_SERVERS = [
-    // { urls: 'stun:stun.l.google.com:19302' },    
-    // { urls: 'stun:stun1.l.google.com:19302' }, 
-    // { urls: 'stun:stun2.l.google.com:19302' },   
-    // { urls: `turn:${window.location.hostname}:3478`,
-    //     credential: sessionId,
-    //     username: sessionId,
-    // }
+    { urls: 'stun:stun.l.google.com:19302' },    
+    { urls: 'stun:stun1.l.google.com:19302' }, 
+    { urls: 'stun:stun2.l.google.com:19302' },   
+    { urls: `turn:${window.location.hostname}:3478`,
+        credential: sessionId,
+        username: sessionId,
+    }
 ]
 
 // Utility Functions
@@ -557,10 +557,6 @@ async function init() {
     setupSocketHandlers();
     setupUIListeners();
     await getMic();
-    onicecandidateerror = (event) => {
-        updateStatus('peer connection failed, view console for details')
-        socket.emit('ice_failed', {'event': event})
-    }
 }
 
 init();
